@@ -1,95 +1,97 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+import { Box, Button, Container, SimpleGrid, Stack, Text } from "@chakra-ui/react";
+import { Status } from "./UI/Icons";
+import Link from "next/link";
 
 export default function Home() {
-  return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.js</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
+	return (
+		<>
+			<Container maxW="container.md">
+				<Text fontSize="2xl" fontWeight="semibold" color="blackAlpha.800">Welcome, Bobby!</Text>
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
+				<Stack direction="row" alignItems="center" spacing="0.5">
+					<Status color="green.300" fontSize="xl" />
+					<Text fontSize="sm" color="green.300">Active</Text>
+				</Stack>
 
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
+				<Box mt="5" bg="blackAlpha.50" p="5" borderRadius="5">
+					<Text fontSize="sm" fontWeight="semibold" color="blackAlpha.800">Stay Up To Date</Text>
 
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
+					<SimpleGrid columns={[1, 3]} mt="5" gap={[5, 0]}>
+						<Stack direction={["row", "column"]} alignItems="center" justify={["space-between", "none"]}>
+							<Text fontSize="sm">Active Referrals</Text>
+							<Text fontSize="xl" color="green.300">12</Text>
+						</Stack>
 
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore the Next.js 13 playground.</p>
-        </a>
+						<Stack direction={["row", "column"]} alignItems="center" justify={["space-between", "none"]}>
+							<Text fontSize="sm">Revenue (30 days)</Text>
+							<Text fontSize="xl" color="green.300">$2,905,000</Text>
+						</Stack>
 
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  )
+						<Stack direction={["row", "column"]} alignItems="center" justify={["space-between", "none"]}>
+							<Text fontSize="sm">Revenue (lifetime)</Text>
+							<Text fontSize="xl" color="green.300">$9,155,000</Text>
+						</Stack>
+					</SimpleGrid>
+				</Box>
+
+				<Text mt="10" mb="5" color="blackAlpha.800" fontSize="md" fontWeight="semibold">Your Recent Referrals</Text>
+
+				<SimpleGrid columns="3" alignItems="center" w="full" bg="blackAlpha.50" borderRadius="5" mb="2" minH="16" p="5">
+					<Stack direction="column">
+						<Text fontWeight="semibold">Joe Schmo</Text>
+						<Text mt="-2" fontSize="xs">Selling</Text>
+					</Stack>
+					<Text fontSize="xs">Last Updated: 1 day(s) ago</Text>
+					<Box w="fit-content" ml="auto">
+						<Link href="/referrals">
+							<Button variant="ghost" size="sm">View</Button>
+						</Link>
+					</Box>
+				</SimpleGrid>
+
+				<SimpleGrid columns="3" alignItems="center" w="full" bg="blackAlpha.50" borderRadius="5" mb="2" minH="16" p="5">
+					<Stack direction="column">
+						<Text fontWeight="semibold">Jane Doe</Text>
+						<Text mt="-2" fontSize="xs">Selling</Text>
+					</Stack>
+					<Text fontSize="xs">Last Updated: 10 day(s) ago</Text>
+					<Box w="fit-content" ml="auto">
+						<Link href="/referrals">
+							<Button variant="ghost" size="sm">View</Button>
+						</Link>
+					</Box>
+				</SimpleGrid>
+
+				<SimpleGrid columns="3" alignItems="center" w="full" bg="blackAlpha.50" borderRadius="5" mb="2" minH="16" p="5">
+					<Stack direction="column">
+						<Text fontWeight="semibold">Micho Floutsis</Text>
+						<Text mt="-2" fontSize="xs">Selling</Text>
+					</Stack>
+					<Text fontSize="xs">Last Updated: 12 hour(s) ago</Text>
+					<Box w="fit-content" ml="auto">
+						<Link href="/referrals">
+							<Button variant="ghost" size="sm">View</Button>
+						</Link>
+					</Box>
+				</SimpleGrid>
+
+				<SimpleGrid columns="3" alignItems="center" w="full" bg="blackAlpha.50" borderRadius="5" mb="2" minH="16" p="5">
+					<Stack direction="column">
+						<Text fontWeight="semibold">Albert Dunphy</Text>
+						<Text mt="-2" fontSize="xs">Selling</Text>
+					</Stack>
+					<Text fontSize="xs">Last Updated: 14 minute(s) ago</Text>
+					<Box w="fit-content" ml="auto">
+						<Link href="/referrals">
+							<Button variant="ghost" size="sm">View</Button>
+						</Link>
+					</Box>
+				</SimpleGrid>
+
+				<Box w="fit-content" mx="auto" mt="5">
+					<Button size="sm" variant="ghost">View All</Button>
+				</Box>
+			</Container>
+		</>
+	)
 }
