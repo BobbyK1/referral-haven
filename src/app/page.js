@@ -1,97 +1,84 @@
-import { Box, Button, Container, SimpleGrid, Stack, Text } from "@chakra-ui/react";
-import { Status } from "./UI/Icons";
+import { Box, Button, Center, Flex, Heading, Stack, Text } from "@chakra-ui/react";
+import { createServerClient } from "@supabase/ssr";
+import Image from "next/image";
 import Link from "next/link";
+import SignInForm from "./UI/SignInForm";
+import { cookies } from "next/headers";
+import { LogoutSignInForm } from "./UI/Logout";
 
-export default function Home() {
-	return (
-		<>
-			<Container maxW="container.md">
-				<Text fontSize="2xl" fontWeight="semibold" color="blackAlpha.800">Welcome, Bobby!</Text>
+async function GetAgent(supabase, id) {
+    var { data: agents, error } = await supabase.from('agents').select('first_name, last_name').eq('id', id);
 
-				<Stack direction="row" alignItems="center" spacing="0.5">
-					<Status color="green.300" fontSize="xl" />
-					<Text fontSize="sm" color="green.300">Active</Text>
-				</Stack>
+    if (error) throw new Error(error.message)
 
-				<Box mt="5" bg="blackAlpha.50" p="5" borderRadius="5">
-					<Text fontSize="sm" fontWeight="semibold" color="blackAlpha.800">Stay Up To Date</Text>
+    return agents[0];
+}
 
-					<SimpleGrid columns={[1, 3]} mt="5" gap={[5, 0]}>
-						<Stack direction={["row", "column"]} alignItems="center" justify={["space-between", "none"]}>
-							<Text fontSize="sm">Active Referrals</Text>
-							<Text fontSize="xl" color="green.300">12</Text>
-						</Stack>
 
-						<Stack direction={["row", "column"]} alignItems="center" justify={["space-between", "none"]}>
-							<Text fontSize="sm">Revenue (30 days)</Text>
-							<Text fontSize="xl" color="green.300">$2,905,000</Text>
-						</Stack>
+export default async function Page() {
+    
+    const cookieStore = cookies()
 
-						<Stack direction={["row", "column"]} alignItems="center" justify={["space-between", "none"]}>
-							<Text fontSize="sm">Revenue (lifetime)</Text>
-							<Text fontSize="xl" color="green.300">$9,155,000</Text>
-						</Stack>
-					</SimpleGrid>
-				</Box>
+    const supabase = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+        {
+        cookies: {
+            get(name) {
+                return cookieStore.get(name)?.value
+            },
+        },
+        }
+    )
+    
+    const { data: { user }, error } = await supabase.auth.getUser();
 
-				<Text mt="10" mb="5" color="blackAlpha.800" fontSize="md" fontWeight="semibold">Your Recent Referrals</Text>
+    if (user) {
+       var agent = await GetAgent(supabase, user.id);
+    }
 
-				<SimpleGrid columns="3" alignItems="center" w="full" bg="blackAlpha.50" borderRadius="5" mb="2" minH="16" p="5">
-					<Stack direction="column">
-						<Text fontWeight="semibold">Joe Schmo</Text>
-						<Text mt="-2" fontSize="xs">Selling</Text>
-					</Stack>
-					<Text fontSize="xs">Last Updated: 1 day(s) ago</Text>
-					<Box w="fit-content" ml="auto">
-						<Link href="/referrals">
-							<Button variant="ghost" size="sm">View</Button>
-						</Link>
-					</Box>
-				</SimpleGrid>
 
-				<SimpleGrid columns="3" alignItems="center" w="full" bg="blackAlpha.50" borderRadius="5" mb="2" minH="16" p="5">
-					<Stack direction="column">
-						<Text fontWeight="semibold">Jane Doe</Text>
-						<Text mt="-2" fontSize="xs">Selling</Text>
-					</Stack>
-					<Text fontSize="xs">Last Updated: 10 day(s) ago</Text>
-					<Box w="fit-content" ml="auto">
-						<Link href="/referrals">
-							<Button variant="ghost" size="sm">View</Button>
-						</Link>
-					</Box>
-				</SimpleGrid>
+    return (
+        <Flex flexDirection="row" w="100" minH="100vh">
+            <Flex flexDirection="column" justifyContent="center" alignItems="center" w="65vw" minH="100vh" bg="blackAlpha.100">
+                <Center>
+                    <Image src="/referral-haven-logo.png" height="300" width="450" />
+                </Center>
 
-				<SimpleGrid columns="3" alignItems="center" w="full" bg="blackAlpha.50" borderRadius="5" mb="2" minH="16" p="5">
-					<Stack direction="column">
-						<Text fontWeight="semibold">Micho Floutsis</Text>
-						<Text mt="-2" fontSize="xs">Selling</Text>
-					</Stack>
-					<Text fontSize="xs">Last Updated: 12 hour(s) ago</Text>
-					<Box w="fit-content" ml="auto">
-						<Link href="/referrals">
-							<Button variant="ghost" size="sm">View</Button>
-						</Link>
-					</Box>
-				</SimpleGrid>
+                <Box position="absolute" bottom="5">
+                    <Stack direction="row">
+                        <Link href="https://referralhaven.com/terms-of-service" target="_blank" referrerPolicy="no-referrer">
+                            <Text fontSize="sm" fontWeight="semibold" color="blue.500" _hover={{ textDecoration: "underline" }}>Terms of Service</Text>
+                        </Link>
 
-				<SimpleGrid columns="3" alignItems="center" w="full" bg="blackAlpha.50" borderRadius="5" mb="2" minH="16" p="5">
-					<Stack direction="column">
-						<Text fontWeight="semibold">Albert Dunphy</Text>
-						<Text mt="-2" fontSize="xs">Selling</Text>
-					</Stack>
-					<Text fontSize="xs">Last Updated: 14 minute(s) ago</Text>
-					<Box w="fit-content" ml="auto">
-						<Link href="/referrals">
-							<Button variant="ghost" size="sm">View</Button>
-						</Link>
-					</Box>
-				</SimpleGrid>
+                        <Text fontSize="sm">•</Text>
 
-				<Box w="fit-content" mx="auto" mt="5">
-					<Button size="sm" variant="ghost">View All</Button>
-				</Box>
-			</Container>
-		</>
-	)
+                        <Link href="https://referralhaven.com/privacy-policy" target="_blank" referrerPolicy="no-referrer">
+                            <Text  fontSize="sm" fontWeight="semibold" color="blue.500" _hover={{ textDecoration: "underline" }}>Privacy Policy</Text>
+                        </Link>
+                    </Stack>
+                </Box>
+            </Flex>
+
+            <Flex alignItems="center" justifyContent="center" flexDirection="column" w="35vw">
+                <Heading as="h2" fontSize="3xl" textAlign="center">Log In</Heading>
+                <Text fontSize="lg" color="blue.500" textAlign="center" mt="4">Glad you're back!</Text>
+                    {user ? 
+                        <Box w="full" px="14" mt="5">
+                            <Text textAlign="center" fontSize="md"></Text>
+                            <Link href="/dashboard">
+                                <Button w="full" mt="2" size="sm" variant="outline" colorScheme="blue">Signed in as {agent.first_name} {agent.last_name}</Button>
+                            </Link>
+
+                            <Text fontSize="sm" textAlign="center" fontWeight="semibold" my="3">or</Text>
+
+                            <LogoutSignInForm />
+                        </Box>
+                    :
+                        <SignInForm />
+                        
+                    }
+            </Flex>
+        </Flex>
+    )
 }

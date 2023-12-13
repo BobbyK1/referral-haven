@@ -22,3 +22,24 @@ export const ReferralPageSkeleton = () => {
         </>
     )
 }
+
+export const HomePageSkeleton = () => {
+
+    return (
+        <Container maxW="container.md">
+            <Skeleton w="96" h="10" />
+            <Skeleton w="20" h="5" mt="1" />
+
+            <Skeleton w="full" h="52" mt="5" />
+
+            <Stack direction="row" justify="space-between" mt="5">
+                <Skeleton w="32" h="5" />
+                <Skeleton w="6" h="5" />
+            </Stack>
+
+            <Skeleton w="full" h="20" mt="5" />
+            <Skeleton w="full" h="20" mt="3" />
+            <Skeleton w="full" h="20" mt="3" />
+        </Container>
+    )
+}

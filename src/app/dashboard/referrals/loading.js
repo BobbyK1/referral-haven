@@ -1,4 +1,4 @@
-import { ReferralPageSkeleton } from "../UI/LoadingSkeletons";
+import { ReferralPageSkeleton } from "../../UI/LoadingSkeletons";
 
 
 export default function Loading() {
