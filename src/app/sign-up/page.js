@@ -23,7 +23,7 @@ export default function Page() {
     const submitForm = async () => {
         setLoading(true);
 
-        await fetch('/api/auth/createReferralAgent', {
+        await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/createReferralAgent`, {
             method: "POST",
             body: JSON.stringify(formData)
         }).then(response => response.json())
