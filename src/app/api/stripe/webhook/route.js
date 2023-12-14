@@ -45,8 +45,9 @@ export async function POST(request) {
 
     switch(event.type) {
         case "invoice.payment_succeeded":
-            const paymentIntent = event.data.object;
-            const customerId = paymentIntent.customer.id;
+            const invoice = event.data.object;
+            const customerId = invoice.customer.id;
+            const subscriptionId = invoice.lines.data[0].subscription
 
             const { data: customer, error: customerError } = await supabase
                 .from('agents')
@@ -56,7 +57,7 @@ export async function POST(request) {
             if (customerError) throw new Error(customerError.message);
             
             const agent = customer[0];
-            const updatedAgent = { ...agent, subscription_id: paymentIntent.invoice.subscription}
+            const updatedAgent = { ...agent, subscription_id: subscriptionId}
             
             const { agents, error } = await supabase
                 .from('agents')
