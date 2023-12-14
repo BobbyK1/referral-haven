@@ -1,6 +1,5 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies, headers } from "next/headers";
-import { NextResponse } from "next/server";
 import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.NEXT_PUBLIC_STRIPE_SECRET_KEY);
@@ -14,6 +13,7 @@ export async function POST(request) {
     if (!signature) {
         throw new Error(`No Stripe signature found.`);
     }
+
 
     const cookieStore = cookies();
 
@@ -43,6 +43,8 @@ export async function POST(request) {
             status: 400
         });
     }
+
+    console.log(event)
 
     switch(event.type) {
         case "invoice.payment_succeeded":
