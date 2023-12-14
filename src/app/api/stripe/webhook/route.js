@@ -37,6 +37,7 @@ export async function POST(request) {
 
     try {
         event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
+        
     } catch (error) {
         return new Response(`Webhook Error: ${error}`, {
             status: 400
@@ -57,7 +58,7 @@ export async function POST(request) {
             if (customerError) throw new Error(customerError.message);
             
             const agent = customer[0];
-            const updatedAgent = { ...agent, subscription_id: subscriptionId}
+            const updatedAgent = { ...agent, subscription_id: subscriptionId } 
             
             const { agents, error } = await supabase
                 .from('agents')
@@ -66,13 +67,19 @@ export async function POST(request) {
 
             if (error) throw new Error(error.message);
 
-            NextResponse.json({ success: true });
+            new Response(`Success`, {
+                status: "200"
+            })
+
             break;
 
         default:
-            return NextResponse.error(`Unhandled event type ${event.type}`)
+            return new Response(`Unhandled event type ${event.type}`, {
+                status: 400
+            });
     }
-
-    return NextResponse.json();
-
+    
+    return new Response(`Unable to parse webhook. Unknown error occurred.`, {
+        status: 400
+    })
 }
