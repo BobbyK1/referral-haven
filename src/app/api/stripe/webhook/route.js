@@ -128,19 +128,24 @@ export async function POST(request) {
 
         // Handle the event based on its type
         if (event.type === 'invoice.payment_succeeded') {
-        
-
-        // Respond with a 200 OK status
-            return new NextResponse().statusText("Handled Event type.").status(200);
+            // Respond with a 200 OK status
+            return new Response("Payment succeeded webhook received and parsed.", {
+                status: 200,
+            })
         } else {
-        // Handle other webhook event types if needed
-        // ...
+            // Handle other webhook event types if needed
+            // ...
 
-        // Respond with a 200 OK status
-        return new NextResponse("Unhandled event type.", { status: 200 });
+            // Respond with a 200 OK status
+            return new Response("Unhandled event type received.", {
+                status: 400,
+
+            })
         }
     } catch (error) {
         console.error('Webhook error:', error.message);
-        return new NextResponse({ status: 400, text: `Webhook Error: ${error.message}` });
+        return new Response(`Webhook error: ${error}`, {
+            status: 400
+        })
     }
 }
