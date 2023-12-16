@@ -103,7 +103,7 @@ export async function POST(request) {
 
         const supabase = createServerClient(
             process.env.NEXT_PUBLIC_SUPABASE_URL,
-            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+            process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY,
             {
                 cookies: {
                     get(name) {
@@ -115,9 +115,15 @@ export async function POST(request) {
                     remove(name, options) {
                         cookieStore.set({ name, value: '', ...options })
                     }
+                },
+                auth: {
+                    autoRefreshToken: false,
+                    persistSession: false,
                 }
             }
         )
+
+        
 
         // Verify the webhook signature
         const event = stripe.webhooks.constructEvent(
@@ -128,15 +134,31 @@ export async function POST(request) {
 
         // Handle the event based on its type
         if (event.type === 'invoice.payment_succeeded') {
-            // Respond with a 200 OK status
+            const invoice = event.data.object;
+            const customerId = invoice.customer.id;
+            const subscriptionId = invoice.lines.data[0].subscription
+
+            const { data: customer, error: customerError } = await supabase
+                .from('agents')
+                .select('id,stripe_customer_id,subscription_id')
+                .eq('stripe_customer_id', customerId);
+
+            if (customerError) throw new Error(customerError.message);
+            
+            const agent = customer[0];
+            const updatedAgent = { ...agent, subscription_id: subscriptionId } 
+            
+            const { agents, error } = await supabase
+                .from('agents')
+                .update(updatedAgent)
+                .eq('stripe_customer_id', customerId)
+
+            if (error) throw new Error(error.message);
+
             return new Response("Payment succeeded webhook received and parsed.", {
                 status: 200,
             })
         } else {
-            // Handle other webhook event types if needed
-            // ...
-
-            // Respond with a 200 OK status
             return new Response("Unhandled event type received.", {
                 status: 400,
 
