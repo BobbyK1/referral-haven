@@ -2,12 +2,13 @@
 
 import { Box, Step, StepDescription, StepIcon, StepIndicator, StepNumber, StepSeparator, StepStatus, StepTitle, Stepper, Text } from "@chakra-ui/react"
 import { createBrowserClient } from "@supabase/ssr"
+import Link from "next/link"
 import { useEffect, useState } from "react"
 
 const steps = [
-    { title: "Update", description: "Address" },
-    { title: "Upload", description: "Direct Deposit Form" },
-    { title: "Upload", description: "W-9 Tax Form" }
+    { title: "Update", description: "Address", link: "/dashboard/profile" },
+    { title: "Upload", description: "Direct Deposit Form", link: "/dashboard/profile" },
+    { title: "Upload", description: "W-9 Tax Form", link: "/dashboard/profile" }
 ]
 
 export default function CompleteProfile() {
@@ -54,20 +55,24 @@ export default function CompleteProfile() {
             <Stepper index={currentStep} mt="4">
                 {steps.map((step, index) => (
                     <Step key={index}>
-                    <StepIndicator>
-                        <StepStatus
-                            complete={<StepIcon />}
-                            incomplete={<StepNumber />}
-                            active={<StepNumber />}
-                        />
-                    </StepIndicator>
+                        <Link href={step.link}>
+                            <StepIndicator>
+                                <StepStatus
+                                    complete={<StepIcon />}
+                                    incomplete={<StepNumber />}
+                                    active={<StepNumber />}
+                                />
+                            </StepIndicator>
 
-                    <Box flexShrink='0'>
-                        <StepTitle>{step.title}</StepTitle>
-                        <StepDescription>{step.description}</StepDescription>
-                    </Box>
+                            <Box flexShrink='0'>
+                                
+                                <StepTitle>{step.title}</StepTitle>
+                                <StepDescription>{step.description}</StepDescription>
+                                
+                            </Box>
+                        </Link>
 
-                    <StepSeparator />
+                        <StepSeparator />
                     </Step>
                 ))}
             </Stepper>

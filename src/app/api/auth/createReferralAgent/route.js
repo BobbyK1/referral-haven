@@ -83,7 +83,7 @@ export async function POST(request) {
         
     // }
 
-    await CreateCustomerInStripe();
+    // await CreateCustomerInStripe();
 
     return NextResponse.json({ success: true });
 }

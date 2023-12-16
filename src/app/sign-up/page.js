@@ -1,8 +1,8 @@
 'use client'
 
 import { Box, Button, Center, Checkbox, Container, Heading, IconButton, Input, Select, Stack, Text } from "@chakra-ui/react";
-import { redirect } from "next/dist/server/api-utils";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 
@@ -16,6 +16,8 @@ export default function Page() {
         password: "",
         licenses: [], // Array to store license objects
     });
+
+    const router = useRouter();
 
     const [termsChecked, setTermsChecked] = useState(false);
 
@@ -31,7 +33,7 @@ export default function Page() {
             .then(response => response.json())
             .then(response => {
                 if (response.success) {
-                    redirect('/dashboard')
+                    router.push('/dashboard')
                 }
             })
         
