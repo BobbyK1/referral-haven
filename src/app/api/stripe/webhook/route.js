@@ -95,7 +95,7 @@ export async function POST(request) {
     try {
         const sig = headers().get('stripe-signature');
 
-        if (!signature) {
+        if (!sig) {
             throw new Error(`No Stripe signature found.`);
         }
 
