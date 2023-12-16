@@ -1,6 +1,7 @@
 'use client'
 
 import { Box, Button, Center, Checkbox, Container, Heading, IconButton, Input, Select, Stack, Text } from "@chakra-ui/react";
+import { redirect } from "next/dist/server/api-utils";
 import Link from "next/link";
 import { useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
@@ -26,7 +27,13 @@ export default function Page() {
         await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/createReferralAgent`, {
             method: "POST",
             body: JSON.stringify(formData)
-        }).then(response => response.json())
+        })
+            .then(response => response.json())
+            .then(response => {
+                if (response.success) {
+                    redirect('/dashboard')
+                }
+            })
         
 
         setLoading(false);

@@ -33,13 +33,12 @@ export function SubscriptionProvider({ children }) {
 
 				setUser(agents[0].role)
 
-				if (user.role.includes('referral_agent')) {
+				if (agents[0].role.includes('referral_agent')) {
 					await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/stripe/checkSubscriptionStatus`, {
 						method: "GET",
 					})
 						.then(res => res.json())
 						.then(res => {
-							if (res.error) throw new Error(res.error);
 	
 							if (res.active) {
 								setActive(true);
@@ -47,6 +46,7 @@ export function SubscriptionProvider({ children }) {
 								setActive(false);
 							}
 						})
+						.catch(error => console.log(error))
 				}	
 			}
 

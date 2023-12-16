@@ -6,6 +6,7 @@ import { createServerClient } from "@supabase/ssr"
 import { Settings } from "../UI/Icons"
 import { LogoutMenuButton } from "../UI/Logout"
 import { SubscriptionProvider } from "../providers/subscription-provider"
+import { redirect } from "next/navigation"
 
 export const metadata = {
   title: 'Referral Haven',
@@ -30,7 +31,9 @@ export default async function Layout({ children }) {
 
 	const { data: { user }, error } = await supabase.auth.getUser();
 
-    if (error) throw new Error(error.message);
+    if (!user) {
+        redirect('/')
+    }
 
 	return (
         <>

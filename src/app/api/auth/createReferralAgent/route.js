@@ -58,30 +58,30 @@ export async function POST(request) {
 
     await SetUserInfo();
 
-    async function CreateCustomerInStripe() {
-        try {
-            const customer = await stripe.customers.create({
-                name: `${userInfo.firstName} ${userInfo.lastName}`,
-                email: user.email,
-                phone: userInfo.phoneNumber,
-            })
+    // async function CreateCustomerInStripe() {
+    //     try {
+    //         const customer = await stripe.customers.create({
+    //             name: `${userInfo.firstName} ${userInfo.lastName}`,
+    //             email: user.email,
+    //             phone: userInfo.phoneNumber,
+    //         })
 
-            if (customer) {
-                const { data, error } = await supabase
-                    .from('agents')
-                    .update({
-                        stripe_customer_id: customer.id
-                    })
-                    .eq('id', data.user.id)
-                    .select();
+    //         if (customer) {
+    //             const { data, error } = await supabase
+    //                 .from('agents')
+    //                 .update({
+    //                     stripe_customer_id: customer.id
+    //                 })
+    //                 .eq('id', data.user.id)
+    //                 .select();
 
-                if (error) throw new Error(error.code);
-            }
-        } catch (error) {
-            throw new Error(error);
-        }
+    //             if (error) throw new Error(error.code);
+    //         }
+    //     } catch (error) {
+    //         throw new Error(error);
+    //     }
         
-    }
+    // }
 
     await CreateCustomerInStripe();
 

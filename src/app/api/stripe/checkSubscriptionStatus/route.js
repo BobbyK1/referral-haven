@@ -1,8 +1,5 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
-import { NextResponse } from 'next/server';
-import Stripe from 'stripe';
-const stripe = new Stripe(process.env.NEXT_PUBLIC_STRIPE_SECRET_KEY)
 
 export async function GET() {
     const cookieStore = cookies();
@@ -27,54 +24,55 @@ export async function GET() {
 
     const { data: { session }, error } = await supabase.auth.getSession();
 
-    if (error) throw new Error(error.message);
+    if (error) return new Response(`Get session error: ${error}`, {
+        status: 400
+    })
 
     if (!session) {
-        NextResponse.error("Authentication required.")
+        return new Response(`Authentication required.`, {
+            status: 400
+        })
     }
 
     async function GetUser() {
         const { data: { user }, error } = await supabase.auth.getUser();
 
-        if (error) return NextResponse.json({ error: error.message });
+        if (error) return new Response(`User retrieval error: ${error.message}`, {
+            status: 400
+        });
 
         return user;
     }
 
     const user = await GetUser();
+    
+    const { data: agents, error: agentError } = await supabase
+        .from('agents')
+        .select('subscription_id')
+        .eq('id', user.id)
+    
+    if (agentError) return new Response(`Unable to retrieve subscription_id. Error: ${agentError.message}`, {
+        status: 400
+    })
 
-    async function GetSubscription() {
-        const { data: agents, error } = await supabase
-            .from('agents')
-            .select('subscription_id')
-            .eq('id', user.id)
-
-        console.log(agents)
-        
-        if (error) return NextResponse.json({ error: error.message });
-
-        if (!agents[0].subscription_id) {
-            return { active: false };
-        }
-
-        const subscription = await stripe.subscriptions.retrieve(
-            agents[0].subscription_id
-        )
-
-        console.log(subscription.items.data[0].plan.active)
-
-        if (subscription.items.data[0].plan.active) {
-            return { active: true };
-        } else {
-            return { active: false };
-        }
-
+    if (agents[0].subscription_id) {
+        return new Response(JSON.stringify({
+            status: 200,
+            active: true,
+        }), {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+    } else {
+        return new Response(JSON.stringify({
+            status: 200,
+            active: false,
+        }), {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
     }
-
-    const subscription = await GetSubscription();
-
-    console.log(subscription);
-
-    return NextResponse.json(subscription);
 
 }

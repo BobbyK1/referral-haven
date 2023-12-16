@@ -68,7 +68,6 @@ export default function Subscriptions() {
         <Container maxW="container.xl">
             <Text fontSize="xl" fontWeight="semibold">Thanks for registering!</Text>
             <Text fontSize="lg" mb="10">Please select a plan to continue.</Text>
-            {console.log(customerId)}
             <SimpleGrid columns={3} gap="2">
                 <Box>
                     <Box w="full" bgColor="blue.500" borderRadius="2" color="white" p="1">
