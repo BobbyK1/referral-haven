@@ -37,7 +37,7 @@ export default async function Page({ params }) {
 
         return agents[0]
     }
-    
+
     const profile = await GetProfile();
     const licenses = profile.license;
 
@@ -86,18 +86,19 @@ export default async function Page({ params }) {
                             <SimpleGrid columns="2" mt="5" >
                                 <Text fontSize="md">Address</Text>
                                 <Box>
-                                    <Input defaultValue={profile.address.address} borderColor="blackAlpha.400" readOnly />
+                                    <Input defaultValue={profile.address?.address} borderColor="blackAlpha.400" readOnly />
                                     <Grid mt="2" gap="2" templateColumns="repeat(7, 1fr)">
                                         <GridItem colSpan="3">
-                                            <Input defaultValue={profile.address.city} borderColor="blackAlpha.400"></Input>
+                                            <Input defaultValue={profile.address?.city} borderColor="blackAlpha.400"></Input>
                                         </GridItem>
                                         <GridItem colSpan="2">
-                                            <Select defaultValue={profile.address.state} borderColor="blackAlpha.400">
+                                            <Select defaultValue={profile.address?.state} borderColor="blackAlpha.400">
+                                                <option></option>
                                                 <option value="IN">IN</option>
                                             </Select>
                                         </GridItem>
                                         <GridItem colSpan="2">
-                                            <Input defaultValue={profile.address.zip} borderColor="blackAlpha.400" />
+                                            <Input defaultValue={profile.address?.zip} borderColor="blackAlpha.400" />
                                         </GridItem>
                                     </Grid>
                                 </Box>

@@ -51,6 +51,8 @@ export async function POST(request) {
             const customerId = invoice.customer;
             const subscriptionId = invoice.lines.data[0].subscription;
 
+            console.log(customerId)
+
             // Get customer's id
             const { data: customer, error: customerError } = await supabase
                 .from('agents')
@@ -63,14 +65,17 @@ export async function POST(request) {
             
             const agent = customer[0];
             // const updatedAgent = { ...agent, subscription_id: subscriptionId,  } 
+
+            const periodStart = new Date(invoice.period_start * 1000).toISOString();
+            const periodEnd = new Date(invoice.period_end * 1000).toISOString();
             
             // Insert subscription to database
             const { data, error } = await supabase
                 .from('subscriptions')
                 .insert({
                     subscription_id: subscriptionId,
-                    period_start: invoice.period_start,
-                    period_end: invoice.period_end
+                    period_start: periodStart,
+                    period_end: periodEnd
                 })
                 .select();
 
