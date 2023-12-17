@@ -30,7 +30,7 @@ export default async function Page({ params }) {
     async function GetProfile() {
         const { data: agents, error } = await supabase
             .from('agents')
-            .select('first_name, last_name, email, phone_number, address, license')
+            .select('first_name, last_name, email, phone_number, address, license, subscription: subscription_id (*)')
             .eq('id', user.id);
 
         if (error) throw new Error(error.message);
@@ -124,7 +124,16 @@ export default async function Page({ params }) {
                     </TabPanel>
                     <TabPanel px="0">
                         <Box mt="5" p="5" w="full" bg="blackAlpha.50">
-                            <Text fontSize="sm" fontWeight="semibold" color="blackAlpha.800">Billing</Text>
+                            <Stack direction="row" justify="space-between" alignItems="center">
+                                <Box>
+                                    <Text fontSize="md" fontWeight="semibold">Next Billing Date</Text>
+                                    <Text fontSize="xl" mt="2" color="blackAlpha.700">December 12th, 2024</Text>
+                                </Box>
+
+                                <Link href="/">
+                                    <Button variant="ghost" size="sm">Edit</Button>
+                                </Link>
+                            </Stack>
                         </Box>
                     </TabPanel>
 

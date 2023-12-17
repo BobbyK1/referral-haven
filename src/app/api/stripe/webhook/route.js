@@ -66,8 +66,8 @@ export async function POST(request) {
             const agent = customer[0];
             // const updatedAgent = { ...agent, subscription_id: subscriptionId,  } 
 
-            const periodStart = new Date(invoice.period_start * 1000).toISOString();
-            const periodEnd = new Date(invoice.period_end * 1000).toISOString();
+            const periodStart = new Date(invoice.lines.data[0].period.start * 1000).toISOString();
+            const periodEnd = new Date(invoice.lines.data[0].period.end * 1000).toISOString();
             
             // Insert subscription to database
             const { data, error } = await supabase
