@@ -59,7 +59,12 @@ export default async function Layout({ children }) {
                                     <Link href="/dashboard/profile">
                                         <MenuItem>Profile</MenuItem>
                                     </Link>
-                                    <MenuItem>Settings</MenuItem>
+                                    <Link href="/dashboard/settings">
+                                        <MenuItem>Settings</MenuItem>
+                                    </Link>
+                                    <Link href="/dashboard/billing">
+                                        <MenuItem>Billing</MenuItem>
+                                    </Link>
                                     <LogoutMenuButton />
                                 </MenuList>
                             </Menu>

@@ -1,6 +1,5 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies, headers } from "next/headers";
-import { NextResponse } from "next/server";
 import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.NEXT_PUBLIC_STRIPE_SECRET_KEY);
@@ -10,6 +9,7 @@ export async function POST(request) {
     try {
         const sig = headers().get('stripe-signature');
 
+        // Check for stripe signature
         if (!sig) {
             throw new Error(`No Stripe signature found.`);
         }
@@ -37,7 +37,7 @@ export async function POST(request) {
                 }
             }
         )
-        
+
         // Verify the webhook signature
         const event = stripe.webhooks.constructEvent(
             await request.text(),
@@ -45,16 +45,16 @@ export async function POST(request) {
             webhookSecret
         );
 
-        console.log("Event", event.type)
         // Handle the event based on its type
         if (event.type === 'invoice.payment_succeeded') {
             const invoice = event.data.object;
             const customerId = invoice.customer;
-            const subscriptionId = invoice.lines.data[0].subscription
+            const subscriptionId = invoice.lines.data[0].subscription;
 
+            // Get customer's id
             const { data: customer, error: customerError } = await supabase
                 .from('agents')
-                .select('id,stripe_customer_id')
+                .select('stripe_customer_id')
                 .eq('stripe_customer_id', customerId);
 
             if (customerError) return new Response(`Customer retrieval error: ${customerError.message}`, {
@@ -62,18 +62,37 @@ export async function POST(request) {
             })
             
             const agent = customer[0];
-            const updatedAgent = { ...agent, subscription_id: subscriptionId,  } 
+            // const updatedAgent = { ...agent, subscription_id: subscriptionId,  } 
             
-            const { agents, error } = await supabase
-                .from('agents')
-                .update(updatedAgent)
-                .eq('stripe_customer_id', customerId)
+            // Insert subscription to database
+            const { data, error } = await supabase
+                .from('subscriptions')
+                .insert({
+                    subscription_id: subscriptionId,
+                    period_start: invoice.period_start,
+                    period_end: invoice.period_end
+                })
+                .select();
 
             if (error) return new Response(`Update stripe_customer_id error: ${error.message}`, {
                 status: 400
             });
 
-            return new Response("Payment succeeded webhook received and parsed.", {
+            if (data) {
+                // Update agent subscription_id column
+                const { data: update, error } = await supabase
+                    .from('agents')
+                    .update({
+                        subscription_id: data[0].id
+                    })
+                    .eq('stripe_customer_id', agent.stripe_customer_id)
+
+                if (error) return new Response(`Unable to update subscription_id column: ${error.message}`, {
+                    status: 400
+                })
+            }
+
+            return new Response("Webhook received and processed.", {
                 status: 200,
             })
         } else {

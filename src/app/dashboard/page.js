@@ -31,7 +31,8 @@ async function GetActiveReferrals(supabase, id) {
 	return count;
 }
 
-export default async function Home() {
+export default async function Home({ params, searchParams }) {
+	const search = await searchParams;
 	const cookieStore = cookies()
 
     const supabase = createServerClient(
@@ -150,6 +151,7 @@ export default async function Home() {
 					<Button size="sm" variant="ghost">View All</Button>
 				</Link>
 			</Box>
+
 		</Container>
 	)
 }
