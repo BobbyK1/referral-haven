@@ -35,6 +35,17 @@ export default async function Layout({ children }) {
         redirect('/')
     }
 
+    async function GetRole() {
+        const { data: agents, error } = await supabase
+            .from('agents')
+            .select('role')
+            .eq('id', user.id);
+
+        return agents[0].role
+    }
+
+    const role = await GetRole();
+
 	return (
         <>
             <Flex mb="10" w="full" alignItems="center" h="14" borderBottomWidth="thin" borderColor="blackAlpha.100" shadow="sm">
@@ -45,6 +56,12 @@ export default async function Layout({ children }) {
                         </Link>
 
                         <Stack direction="row" spacing="3" alignItems="center">
+                            {role.includes('admin') && 
+                                <Link href="/dashboard/admin">
+                                    <Text _hover={{ color: "blackAlpha.800" }} transition="0.1s ease" fontSize="sm" fontWeight="semibold" color="blackAlpha.700">Admin</Text>
+                                </Link>
+                            }
+
                             <Link href="/dashboard">
                                 <Text _hover={{ color: "blackAlpha.800" }}  transition="0.1s ease" fontSize="sm" fontWeight="semibold" color="blackAlpha.700">Home</Text>
                             </Link>
@@ -56,13 +73,13 @@ export default async function Layout({ children }) {
                                 <MenuButton rounded="full" variant="ghost" as={IconButton} icon={<Settings />} />
 
                                 <MenuList>
-                                    <Link href="/dashboard/profile">
+                                    <Link href="/dashboard/account/profile">
                                         <MenuItem>Profile</MenuItem>
                                     </Link>
-                                    <Link href="/dashboard/settings">
+                                    <Link href="/dashboard/account/settings">
                                         <MenuItem>Settings</MenuItem>
                                     </Link>
-                                    <Link href="/dashboard/billing">
+                                    <Link href="/dashboard/account/billing">
                                         <MenuItem>Billing</MenuItem>
                                     </Link>
                                     <LogoutMenuButton />

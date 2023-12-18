@@ -1,33 +1,23 @@
-import { Box, Button, Container, Input, Select, SimpleGrid, Spinner, Stack, Text } from "@chakra-ui/react";
+import { Box, Button, Container, IconButton, Input, Select, SimpleGrid, Spinner, Stack, Text } from "@chakra-ui/react";
 import Link from "next/link";
-import { cookies } from "next/headers";
-import { createServerClient } from "@supabase/ssr";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
+import { Add } from "@/app/UI/Icons";
+import fetchUser from "@/app/util/fetchUser";
+import serverClientSupabase from "@/app/util/serverClientSupabase";
 
 export default async function Page() {
 
-	const cookieStore = cookies()
+	const profile = await fetchUser();
 
-    const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-        {
-        cookies: {
-            get(name) {
-            	return cookieStore.get(name)?.value
-            },
-        },
-    })
-
-	const { data: { user }, error } = await supabase.auth.getUser();
-
-	if (!user) {
+	if (!profile.user) {
 		redirect('/');
 	}
 
+	const supabase = await serverClientSupabase();
+
 	async function GetRecentReferrals() {
-		const { data: leads, error } = await supabase.from('leads').select("*").eq("referring_agent", user.id);
+		const { data: leads, error } = await supabase.from('leads').select("*").eq("referring_agent", profile.user.id);
 
 		if (error) throw new Error(error.message)
 
@@ -38,7 +28,13 @@ export default async function Page() {
 
     return (
         <Container maxW="container.md">
-            <Input w="96" placeholder="Search..." mb="10" bg="blackAlpha.50" borderColor="blackAlpha.100" />
+			<Stack direction="row" justify="space-between">
+            	<Input w="96" placeholder="Search..." mb="10" bg="blackAlpha.50" borderColor="blackAlpha.100" />
+
+				<Link href="/dashboard/add-referral">
+					<IconButton title="Add Lead" icon={<Add />} size="sm" rounded="full" colorScheme="blue" bg="blue.400" />
+				</Link>
+			</Stack>
 			<Suspense fallback={<Spinner />}>
 				{referrals
 				.map(referral => {

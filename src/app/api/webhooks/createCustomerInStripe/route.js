@@ -49,6 +49,6 @@ export async function POST(request) {
     })
 
     return new Response(`Successfully updated stripe_customer_id`, {
-        status: 400
+        status: 200
     })
 }

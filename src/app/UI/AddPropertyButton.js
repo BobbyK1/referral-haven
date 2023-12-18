@@ -1,7 +1,6 @@
 'use client'
 
-import { Box, Button, IconButton, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay, Select, Text, useDisclosure } from "@chakra-ui/react"
-import { Add } from "./Icons";
+import { Box, Button, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay, Select, Text, useDisclosure } from "@chakra-ui/react"
 import { useFormStatus, useFormState } from 'react-dom';
 import { AddPropertyToReferralLead } from "../actions";
 import { useEffect } from "react";
@@ -30,7 +29,7 @@ export default function AddPropertyButton({ id }) {
     }, [state])
     return (
         <>
-            <IconButton onClick={onOpen} icon={<Add fontSize="xl" color="white" />} title="Add Property" size="sm" bg="blue.500" colorScheme="blue" rounded="full" />
+            <Button onClick={onOpen}  title="Add Property" size="sm" variant="ghost">Add Property</Button>
             
             
                 <Modal isOpen={isOpen} onClose={onClose}>

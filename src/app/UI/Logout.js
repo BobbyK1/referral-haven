@@ -3,9 +3,11 @@
 import { Button, MenuItem } from "@chakra-ui/react"
 import { createBrowserClient } from "@supabase/ssr"
 import { useRouter } from "next/navigation"
+import { useState } from "react";
 
 export function LogoutSignInForm() {
     const router = useRouter();
+    const [loading, setLoading] = useState(false);
 
     const supabase = createBrowserClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -13,10 +15,13 @@ export function LogoutSignInForm() {
     )
 
     const logout = async () => {
+        setLoading(true);
+
 		let { error } = await supabase.auth.signOut();
 
         if (error) throw new Error(error.message);
 
+        setLoading(false);
         return router.refresh();
 	}
 

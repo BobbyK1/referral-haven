@@ -1,14 +1,13 @@
 'use client'
 
-import { Button, IconButton, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, useDisclosure } from "@chakra-ui/react";
-import { Add } from "./Icons";
+import { Button, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, useDisclosure } from "@chakra-ui/react";
 
 const AddUpdateButton = () => {
     const { onOpen, isOpen, onClose } = useDisclosure();
 
     return (
         <>
-            <IconButton onClick={onOpen} icon={<Add fontSize="xl" color="white" />} title="Add Update" size="sm" bg="blue.500" colorScheme="blue" rounded="full" />
+            <Button onClick={onOpen} title="Add Update" size="sm" variant="ghost">Add Update</Button>
 
             <Modal size="xl" isOpen={isOpen} onClose={onClose}>
                 <ModalOverlay />

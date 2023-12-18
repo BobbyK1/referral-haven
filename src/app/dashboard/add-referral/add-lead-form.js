@@ -12,16 +12,16 @@ const initialState = {
 function SubmitButton() {
     const { pending } = useFormStatus()
 
-    return <Button type="submit" isDisabled={pending} isLoading={pending} my="5" w="full" colorScheme="gray">Add Lead</Button>
+    return <Button type="submit" isDisabled={pending} isLoading={pending} my="5" w="full" colorScheme="gray">Add Referral</Button>
 }
 
-export default function AddLeadForm() {
+export default function AddReferralForm() {
     const [state, formAction] = useFormState(CreateReferralAgentLead, initialState)
     const [select, setSelect] = useState();
 
     return (
         <form action={formAction}>
-            <Box borderColor="blackAlpha.300" borderWidth="thin" borderRadius="5" p="5">
+            <Box borderColor="blackAlpha.300"  borderWidth="thin" borderRadius="5" p="5">
                 <Box mt="-9" mb="4" bg="white" w="fit-content" px="2" py="1">
                     <Text fontSize="sm">Contact Information</Text>
                 </Box>

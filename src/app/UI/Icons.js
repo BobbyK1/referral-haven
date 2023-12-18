@@ -2,7 +2,7 @@
 
 import { Icon } from "@chakra-ui/react"
 import { GoDotFill } from "react-icons/go"
-import { AiOutlineDown, AiOutlineEdit, AiOutlineMail, AiOutlinePhone, AiOutlinePlus, AiOutlineRight, AiOutlineSetting } from 'react-icons/ai'
+import { AiOutlineDown, AiOutlineEdit, AiOutlineMail, AiOutlineNotification, AiOutlinePhone, AiOutlinePlus, AiOutlineRight, AiOutlineSetting } from 'react-icons/ai'
 
 
 export const Status = (props) => {
@@ -34,5 +34,9 @@ export const DownChevron = (props) => {
 }
 
 export const RightArrow = (props) => {
-    return <Icon as={AiOutlineRight} />
+    return <Icon as={AiOutlineRight} {...props} />
+}
+
+export const Bell = (props) => {
+    return <Icon as={AiOutlineNotification} {...props} />
 }

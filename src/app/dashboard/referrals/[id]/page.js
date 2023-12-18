@@ -7,43 +7,19 @@ import { createServerClient } from "@supabase/ssr";
 import { redirect } from "next/navigation";
 import AddPropertyButton from "@/app/UI/AddPropertyButton";
 import ChangeStatusMenu from "@/app/UI/ChangeStatusMenu";
+import fetchUser from "@/app/util/fetchUser";
+import serverClientSupabase from "@/app/util/serverClientSupabase";
 
 export default async function Page({ params }) {
     const id = await params.id;
 
-    const cookieStore = cookies()
+    const profile = await fetchUser(true);
 
-    const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-        {
-        cookies: {
-            get(name) {
-            return cookieStore.get(name)?.value
-            },
-        },
-        }
-    )
-
-    const { data: { user }, error } = await supabase.auth.getUser();
-
-    if (error) throw new Error(error.message);
-
-    if (!user) {
+    if (!profile.user) {
         redirect('/');
     }
 
-    async function GetAgentProfile() {
-        const { data: agents, error } = await supabase.from('agents').select('role').eq('id', user.id);;
-
-        if (error) throw new Error(error.message);
-
-        return agents[0].role
-    }
-
-    let agent = [];
-
-    agent = await GetAgentProfile();
+    const supabase = await serverClientSupabase();
 
     async function GetLead() {
         const { data: leads, error } = await supabase
@@ -70,19 +46,6 @@ export default async function Page({ params }) {
         )
     }
 
-    async function GetProperties() {
-        const { data: leads, error } = await supabase
-            .from('leads')
-            .select('properties')
-            .eq('id', id);
-
-        if (error) throw new Error(error.message);
-
-        return leads[0].properties;
-    }
-
-    const properties = await GetProperties();
-
     return (
         <Container maxW="container.md">
             <Stack direction="row" alignItems="center" justify="space-between">
@@ -99,14 +62,14 @@ export default async function Page({ params }) {
                 
                 <Stack direction="row" alignItems="center">
                     <Link href={`tel:${lead.phone_number}`}>
-                        <IconButton icon={<Phone fontSize="xl" color="white" />} title="Call" size="sm" bg="blue.500" colorScheme="blue" rounded="full" />
+                        <IconButton icon={<Phone fontSize="xl" color="white" />} title="Call" size="sm" bg="blue.400" colorScheme="blue" rounded="full" />
                     </Link>
 
                     <Link href={`mailto:${lead.email}`} target="_blank" referrerPolicy="no-referrer">
-                        <IconButton icon={<Email fontSize="xl" color="white" />} title="Email" size="sm" bg="blue.500" colorScheme="blue" rounded="full" />
+                        <IconButton icon={<Email fontSize="xl" color="white" />} title="Email" size="sm" bg="blue.400" colorScheme="blue" rounded="full" />
                     </Link>
 
-                    <IconButton icon={<Edit fontSize="xl" color="white" />} title="Edit" size="sm" bg="blue.500" colorScheme="blue" rounded="full" />
+                    <IconButton icon={<Edit fontSize="xl" color="white" />} title="Edit" size="sm" bg="blue.400" colorScheme="blue" rounded="full" />
                 </Stack>
             </Stack>
 
@@ -130,9 +93,9 @@ export default async function Page({ params }) {
                                 <AddPropertyButton id={id} />
                             </Stack>
                             <Divider mt="4" borderColor="blackAlpha.400" />
-                            {!properties ? <Text mt="5" color="blackAlpha.500" textAlign="center" fontSize="md">No properties yet...</Text> : 
+                            {!lead.properties ? <Text mt="5" color="blackAlpha.500" textAlign="center" fontSize="md">No properties yet...</Text> : 
                                 <>
-                                    {properties.map(property => {
+                                    {lead.properties.map(property => {
 
                                         return (
                                             <Box w="full" bg="blackAlpha.50" mt="2" p="5">
@@ -156,7 +119,7 @@ export default async function Page({ params }) {
                             <Stack direction="row" alignItems="center" justify="space-between">
                                 <Text fontSize="md">Updates</Text>
 
-                                {agent[0] !== 'referral_agent' && <AddUpdateButton />}
+                                {!profile.role.includes('referral_agent') && <AddUpdateButton />}
                             </Stack>
                         </Box>
 

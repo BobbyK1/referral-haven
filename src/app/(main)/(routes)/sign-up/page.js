@@ -110,7 +110,7 @@ export default function Page() {
     };
 
     return (
-        <Container maxW="lg" mt="20">
+        <Container>
             <Heading as="h2" fontSize="3xl" textAlign="center">Create an account</Heading>
             <Text fontSize="lg" color="blue.500" textAlign="center" mt="4">Let's get you earning today!</Text>
 

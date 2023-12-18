@@ -15,6 +15,7 @@
     "@emotion/styled": "^11.11.0",
     "@supabase/ssr": "^0.0.10",
     "@supabase/supabase-js": "^2.39.0",
+    "algoliasearch": "^4.22.0",
     "framer-motion": "^10.16.4",
     "next": "^14.0.3",
     "react": "^18",

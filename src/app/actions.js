@@ -4,42 +4,12 @@ import { createServerClient } from "@supabase/ssr"
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 import { NextResponse } from "next/server"
+import serverClientSupabase from "./util/serverClientSupabase"
+import fetchUser from "./util/fetchUser"
 
 export async function AddPropertyToReferralLead(prevState, formData) {
-    const cookieStore = cookies();
+    const supabase = await serverClientSupabase();
     const id = await formData.get('id');
-
-    const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-        {
-            cookies: {
-                get(name) {
-                    return cookieStore.get(name)?.value
-                },
-                set(name, value, options) {
-                    cookieStore.set({ name, value, ...options })
-                },
-                remove(name, options) {
-                    cookieStore.set({ name, value: '', ...options })
-                },
-            },
-        }
-    )
-
-    async function GetUser() {
-        const { data: { user }, error } = await supabase.auth.getUser();
-
-        if (!user) {
-            return NextResponse.error('Action requires authentication.');
-        }
-
-        if (error) NextResponse.error(error.message);
-
-        return user;
-    }
-
-    const user = await GetUser();
 
     const propertyData = {
         property_address: await formData.get('property_address'),
@@ -90,39 +60,8 @@ export async function AddPropertyToReferralLead(prevState, formData) {
 }
 
 export async function CreateReferralAgentLead(prevState, formData) {
-    const cookieStore = cookies()
-
-    const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-        {
-            cookies: {
-                get(name) {
-                    return cookieStore.get(name)?.value
-                },
-                set(name, value, options) {
-                    cookieStore.set({ name, value, ...options })
-                },
-                remove(name, options) {
-                    cookieStore.set({ name, value: '', ...options })
-                },
-            },
-        }
-    )
-    
-    async function GetUser() {
-        const { data: { user }, error } = await supabase.auth.getUser();
-
-        if (!user) {
-            return NextResponse.error('Action requires authentication.');
-        }
-
-        if (error) NextResponse.error(error.message);
-
-        return user;
-    }
-
-    const user = await GetUser();
+    const supabase = await serverClientSupabase();
+    const profile = await fetchUser();
 
     const leadData = {
         first_name: await formData.get('first_name'),
@@ -148,7 +87,7 @@ export async function CreateReferralAgentLead(prevState, formData) {
                 phone_number: leadData.phone_number,
                 goal: leadData.goal,
                 notes: leadData.notes,
-                referring_agent: user.id,
+                referring_agent: profile.user.id,
                 referral_type: leadData.referral_type,
                 receiving_agent_name: leadData.receiving_agent_name,
                 receiving_agent_phone_number: leadData.receiving_agent_phone_number,
@@ -161,4 +100,35 @@ export async function CreateReferralAgentLead(prevState, formData) {
     if (error) NextResponse.error(error.message);
 
     return redirect(`${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/referrals/${data[0].id}`);
+}
+
+export async function UpdatePersonalInfo(prevState, formData) {
+    if (!formData) {
+        return NextResponse.error('No form data submitted.');
+    }
+
+    const supabase = await serverClientSupabase();
+    const profile = await fetchUser();
+
+    const profileData = {
+        first_name: await formData.get('first_name'),
+        last_name: await formData.get('last_name'),
+        email: await formData.get('email'),
+        phone_number: await formData.get('phone_number'),
+        address: {
+            address: await formData.get('address'),
+            city: await formData.get('city'),
+            state: await formData.get('state'),
+            zip: await formData.get('zip')
+        }
+    }
+
+    const { data, error } = await supabase
+        .from('agents')
+        .update(profileData)
+        .eq('id', profile.user.id);
+
+    if (error) throw new Error(error.message);
+
+    return { message: "success" }
 }

@@ -1,37 +1,28 @@
+import fetchUser from "@/app/util/fetchUser";
+import serverClientSupabase from "@/app/util/serverClientSupabase";
 import { Box, Button, Container, Flex, Grid, GridItem, Input, Select, SimpleGrid, Stack, Tab, TabList, TabPanel, TabPanels, Tabs, Tag, Text } from "@chakra-ui/react";
-import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import PersonalInfoForm from "./personal-info-form";
 
 
 export default async function Page({ params }) {
     const id = await params.id;
 
-    const cookieStore = cookies()
+    const userProfile = await fetchUser();
 
-    const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-        {
-        cookies: {
-            get(name) {
-            	return cookieStore.get(name)?.value
-            },
-        },
-    })
-
-    const { data: { user }, error } = await supabase.auth.getUser();
-
-    if (!user) {
+    if (!userProfile.user) {
         redirect('/');
     }
+
+    const supabase = await serverClientSupabase();
 
     async function GetProfile() {
         const { data: agents, error } = await supabase
             .from('agents')
             .select('first_name, last_name, email, phone_number, address, license, subscription: subscription_id (*)')
-            .eq('id', user.id);
+            .eq('id', userProfile.user.id);
 
         if (error) throw new Error(error.message);
 
@@ -39,6 +30,16 @@ export default async function Page({ params }) {
     }
 
     const profile = await GetProfile();
+
+    
+    const options = { month: 'short', day: 'numeric', year: 'numeric' };
+
+    const startDateInput = new Date(profile.subscription?.period_start);
+    const startDate = startDateInput.toLocaleDateString('en-US', options);
+
+    const endDateInput = new Date(profile.subscription?.period_end);
+    const endDate = endDateInput.toLocaleDateString('en-US', options);
+
     const licenses = profile.license;
 
     return (
@@ -53,13 +54,13 @@ export default async function Page({ params }) {
 
             <Tabs defaultIndex={id === "profile" ? 0 : id === "billing" ? 1 : 2} mt="5" colorScheme="black">
                 <TabList>
-                    <Link href="/dashboard/profile">
+                    <Link href="/dashboard/account/profile">
                         <Tab>Profile</Tab>
                     </Link>
-                    <Link href="/dashboard/billing">
+                    <Link href="/dashboard/account/billing">
                         <Tab>Billing</Tab>
                     </Link>
-                    <Link href="/dashboard/settings">
+                    <Link href="/dashboard/account/settings">
                         <Tab>Settings</Tab>
                     </Link>
                 </TabList>
@@ -67,42 +68,7 @@ export default async function Page({ params }) {
                 <TabPanels>
                     <TabPanel px="0">
                         <Box w="full" bgColor="blackAlpha.50" p="5" mt="5">
-                            <Stack direction="row" alignItems="center" justify="space-between">
-                                <Text fontSize="sm" fontWeight="semibold" color="blackAlpha.800">Personal Information</Text>
-
-                                <Button variant="ghost" size="sm">Edit</Button>
-                            </Stack>
-
-                            <SimpleGrid columns="2" mt="8" alignItems="center">
-                                <Text fontSize="md">Email</Text>
-                                <Input defaultValue={profile.email} borderColor="blackAlpha.400" readOnly />
-                            </SimpleGrid>
-
-                            <SimpleGrid columns="2" mt="5" alignItems="center">
-                                <Text fontSize="md">Phone Number</Text>
-                                <Input defaultValue={profile.phone_number} borderColor="blackAlpha.400" readOnly />
-                            </SimpleGrid>
-
-                            <SimpleGrid columns="2" mt="5" >
-                                <Text fontSize="md">Address</Text>
-                                <Box>
-                                    <Input defaultValue={profile.address?.address} borderColor="blackAlpha.400" readOnly />
-                                    <Grid mt="2" gap="2" templateColumns="repeat(7, 1fr)">
-                                        <GridItem colSpan="3">
-                                            <Input defaultValue={profile.address?.city} borderColor="blackAlpha.400"></Input>
-                                        </GridItem>
-                                        <GridItem colSpan="2">
-                                            <Select defaultValue={profile.address?.state} borderColor="blackAlpha.400">
-                                                <option></option>
-                                                <option value="IN">IN</option>
-                                            </Select>
-                                        </GridItem>
-                                        <GridItem colSpan="2">
-                                            <Input defaultValue={profile.address?.zip} borderColor="blackAlpha.400" />
-                                        </GridItem>
-                                    </Grid>
-                                </Box>
-                            </SimpleGrid>
+                            <PersonalInfoForm initialInfo={profile} />
                         </Box>
 
                         <Box w="full" bgColor="blackAlpha.50" p="5" mt="5">
@@ -125,15 +91,21 @@ export default async function Page({ params }) {
                     <TabPanel px="0">
                         <Box mt="5" p="5" w="full" bg="blackAlpha.50">
                             <Stack direction="row" justify="space-between" alignItems="center">
-                                <Box>
-                                    <Text fontSize="md" fontWeight="semibold">Next Billing Date</Text>
-                                    <Text fontSize="xl" mt="2" color="blackAlpha.700">December 12th, 2024</Text>
-                                </Box>
-
+                                <Text fontSize="sm" fontWeight="semibold" color="blackAlpha.800">Billing Information</Text>
                                 <Link href="/">
                                     <Button variant="ghost" size="sm">Edit</Button>
                                 </Link>
                             </Stack>
+                            <Box mt="5">
+                                <Box>
+                                    <Text fontSize="md" fontWeight="semibold">Plan</Text>
+                                    <Text fontSize="lg" mt="2" color="blackAlpha.700">{profile.subscription ? `1 Year Membership for $120.00 /year` : "No subscription"}</Text>
+                                </Box>
+                                <Box mt="5">
+                                    <Text fontSize="md" fontWeight="semibold">Current Billing Period</Text>
+                                    <Text fontSize="lg" mt="2" color="blackAlpha.700">{profile.subscription ? `${startDate} - ${endDate}` : "No subscription"}</Text>
+                                </Box>                                  
+                            </Box>
                         </Box>
                     </TabPanel>
 

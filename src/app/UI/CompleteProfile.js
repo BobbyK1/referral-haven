@@ -6,9 +6,9 @@ import Link from "next/link"
 import { useEffect, useState } from "react"
 
 const steps = [
-    { title: "Update", description: "Address", link: "/dashboard/profile" },
-    { title: "Upload", description: "Direct Deposit Form", link: "/dashboard/profile" },
-    { title: "Upload", description: "W-9 Tax Form", link: "/dashboard/profile" }
+    { title: "Update", description: "Address", link: "/dashboard/account/profile" },
+    { title: "Upload", description: "Direct Deposit Form", link: "/dashboard/account/profile" },
+    { title: "Upload", description: "W-9 Tax Form", link: "/dashboard/account/profile" }
 ]
 
 export default function CompleteProfile() {
