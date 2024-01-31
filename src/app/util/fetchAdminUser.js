@@ -34,5 +34,5 @@ export default async function fetchAdminUser() {
 
     const role = await GetRole();
     
-    return role;
+    return { user: user, role: role };
 }

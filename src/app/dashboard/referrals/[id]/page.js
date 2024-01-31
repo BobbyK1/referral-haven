@@ -1,6 +1,6 @@
 import AddUpdateButton from "@/app/UI/AddUpdateButton";
-import { Edit, Email, Phone } from "@/app/UI/Icons";
-import { Box, Button, Center, Container, Divider, IconButton, Stack, Tab, TabList, TabPanel, TabPanels, Tabs, Text } from "@chakra-ui/react";
+import { Account, Check, Edit, Email, Phone } from "@/app/UI/Icons";
+import { Alert, AlertIcon, Box, Button, Center, Container, Divider, IconButton, Stack, Tab, TabList, TabPanel, TabPanels, Tabs, Tag, Text, Tooltip } from "@chakra-ui/react";
 import Link from "next/link";
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
@@ -9,6 +9,7 @@ import AddPropertyButton from "@/app/UI/AddPropertyButton";
 import ChangeStatusMenu from "@/app/UI/ChangeStatusMenu";
 import fetchUser from "@/app/util/fetchUser";
 import serverClientSupabase from "@/app/util/serverClientSupabase";
+import ReferralUpdates from "@/app/UI/ReferralUpdates";
 
 export default async function Page({ params }) {
     const id = await params.id;
@@ -19,7 +20,7 @@ export default async function Page({ params }) {
         redirect('/');
     }
 
-    const supabase = await serverClientSupabase();
+    const supabase = serverClientSupabase();
 
     async function GetLead() {
         const { data: leads, error } = await supabase
@@ -48,13 +49,20 @@ export default async function Page({ params }) {
 
     return (
         <Container maxW="container.md">
-            <Stack direction="row" alignItems="center" justify="space-between">
+            {profile.user.id !== lead.referring_agent && <Alert variant="left-accent" status="error" borderRadius="5" mb="5"><AlertIcon /> You must sign the referral agreement before receiving this client's details. Please navigate to the Documents tab to complete the paperwork.</Alert>}
+            <Stack direction={["column", "row"]} alignItems={["flex-start", "center"]} justify="space-between">
                 <Box>
                     <Stack direction="row" alignItems="center">
                         <Text fontSize="xl" fontWeight="semibold">{lead.first_name} {lead.last_name}</Text>
+                        {lead.referral_type === "havenPreferred" && <Tooltip label="Haven Preferred®"><Box><Check p="1" rounded="full" bgColor="blue.400" fontSize="xl" color="white" /></Box></Tooltip>}
                         {lead.status && 
-                            <ChangeStatusMenu id={id} status={lead.status} />
-                            // <Tag variant="subtle" colorScheme="blue" size="sm" rounded="full" textTransform="capitalize">{lead.status}</Tag>
+                            <>
+                                {
+                                    !profile.role.includes('referral_agent') ? <ChangeStatusMenu id={id} status={lead.status} /> : <Tag variant="solid" colorScheme="blue" rounded="full" textTransform="capitalize">{lead.status}</Tag>
+                                }
+                                
+                               
+                            </>
                         }
                     </Stack>
                     <Text fontSize="sm" mt="-1" textTransform="capitalize">{lead.goal === "Both" ? "Buying & Selling" : lead.goal}</Text>
@@ -73,6 +81,13 @@ export default async function Page({ params }) {
                 </Stack>
             </Stack>
 
+            <Box mt="5">
+                        <Stack direction="row" alignItems="center">
+                            <Account />
+                            <Text fontSize="sm">Not Assigned</Text>
+                        </Stack>
+                    </Box>
+
             <Tabs mt="5" colorScheme="black">
                 <TabList>
                     <Tab>Details</Tab>
@@ -81,7 +96,7 @@ export default async function Page({ params }) {
 
                 <TabPanels>
                     <TabPanel px="0">
-                        <Box mt="5" bg="blackAlpha.50" p="5" borderRadius="5" minH="44">
+                        <Box mt="5" bg="blackAlpha.50" p="5" borderRadius="5" minH="fit-content">
                             <Text fontSize="sm" fontWeight="semibold" color="blackAlpha.800">Notes</Text>
 
                             {lead.notes && <Text mt="5" fontSize="sm" color="blackAlpha.800">{lead.notes}</Text>}
@@ -125,7 +140,17 @@ export default async function Page({ params }) {
 
                         <Divider mt="4" borderColor="blackAlpha.400" />
 
-                        <Text mt="5" color="blackAlpha.500" textAlign="center" fontSize="md">No updates yet...</Text>
+                        <Box mt="5">
+                                <ReferralUpdates id={id} />
+                        </Box>
+                    </TabPanel>
+                    <TabPanel px="0">
+                        {lead.referral_type === "hasAgent" &&
+                            <>
+                                <Text>Missing: Referral Agreement</Text>
+                                <Divider mt="5" borderColor="blackAlpha.300" />
+                            </>
+                        }
                     </TabPanel>
                 </TabPanels>
             </Tabs>

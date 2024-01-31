@@ -27,8 +27,18 @@ export default function ChangeStatusMenu({ id, status }) {
                 .update({ status: newStatus })
                 .eq('id', id)
                 .select();
-            
+
             if (error) throw new Error(error.message);
+
+            const { data: status, error: statusError } = await supabase
+                .from('updates')
+                .insert({
+                    lead_id: id,
+                    type: "statusChange",
+                    message: `Lead status changed from "${currentStatus.toUpperCase()}" to "${newStatus.toUpperCase()}"`
+                })
+
+            if (statusError) throw new Error(error.message);
         }
 
         router.refresh();
@@ -39,6 +49,7 @@ export default function ChangeStatusMenu({ id, status }) {
         <Menu>
             <MenuButton as={Button} isLoading={loading} rounded="full" size="xs" colorScheme="blue" bgColor="blue.400" rightIcon={<DownChevron />} textTransform="capitalize">{currentStatus}</MenuButton>
             <MenuList>
+                <MenuItem onClick={() => handleStatusChange('just starting')} isDisabled={currentStatus === "just starting"}>Just Starting</MenuItem>
                 <MenuItem onClick={() => handleStatusChange('looking')} isDisabled={currentStatus === "looking"}>Looking</MenuItem>
                 <MenuItem onClick={() => handleStatusChange('under contract')} isDisabled={currentStatus === "under contract"}>Under Contract</MenuItem>
                 <MenuItem onClick={() => handleStatusChange('closed')} isDisabled={currentStatus === "closed"}>Closed</MenuItem>

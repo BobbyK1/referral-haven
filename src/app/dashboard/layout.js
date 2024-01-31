@@ -57,7 +57,7 @@ export default async function Layout({ children }) {
 
                         <Stack direction="row" spacing="3" alignItems="center">
                             {role.includes('admin') && 
-                                <Link href="/dashboard/admin">
+                                <Link href="/admin">
                                     <Text _hover={{ color: "blackAlpha.800" }} transition="0.1s ease" fontSize="sm" fontWeight="semibold" color="blackAlpha.700">Admin</Text>
                                 </Link>
                             }
@@ -76,12 +76,12 @@ export default async function Layout({ children }) {
                                     <Link href="/dashboard/account/profile">
                                         <MenuItem>Profile</MenuItem>
                                     </Link>
-                                    <Link href="/dashboard/account/settings">
-                                        <MenuItem>Settings</MenuItem>
-                                    </Link>
                                     <Link href="/dashboard/account/billing">
                                         <MenuItem>Billing</MenuItem>
                                     </Link>
+                                    {/* <Link href="/dashboard/account/settings">
+                                        <MenuItem>Settings</MenuItem>
+                                    </Link> */}
                                     <LogoutMenuButton />
                                 </MenuList>
                             </Menu>

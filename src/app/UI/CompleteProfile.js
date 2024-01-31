@@ -7,8 +7,8 @@ import { useEffect, useState } from "react"
 
 const steps = [
     { title: "Update", description: "Address", link: "/dashboard/account/profile" },
-    { title: "Upload", description: "Direct Deposit Form", link: "/dashboard/account/profile" },
-    { title: "Upload", description: "W-9 Tax Form", link: "/dashboard/account/profile" }
+    { title: "Upload", description: "Direct Deposit Form", link: "/dashboard/account/billing" },
+    // { title: "Upload", description: "W-9 Tax Form", link: "/dashboard/account/profile" }
 ]
 
 export default function CompleteProfile() {
@@ -29,14 +29,17 @@ export default function CompleteProfile() {
 
             const { data: agents, error } = await supabase
                 .from('agents')
-                .select('uploaded_tax_document,uploaded_direct_deposit_form,address')
+                .select('address, direct_deposit_info: direct_deposit_info (*)')
                 .eq('id', user.id);
 
             if (error) throw new Error(error.message);
 
+            console.log(agents[0].direct_deposit_info)
+
+
             if (!agents[0].address) {
                 setCurrentStep(0);
-            } else if (!agents[0].uploaded_direct_deposit_form) {
+            } else if (!agents[0].direct_deposit_info) {
                 setCurrentStep(1);
             } else {
                 setCurrentStep(2);

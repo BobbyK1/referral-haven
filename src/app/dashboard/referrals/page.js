@@ -23,6 +23,27 @@ export default async function Page() {
 
 		return leads
 	}
+
+	async function GetAgent() {
+		const { data: agents, error } = await supabase
+			.from('agents')
+			.select('address,direct_deposit_info')
+			.eq('id', profile.user.id);
+
+		if (error) throw new Error(error.message);
+
+		return agents[0]
+	}
+
+	const agent = await GetAgent();
+
+	async function CheckStatus() {
+		
+
+		return agent.address && agent.direct_deposit_info
+	}
+
+	const checkStatus = await CheckStatus();
 	
 	const referrals = await GetRecentReferrals();
 
@@ -30,13 +51,16 @@ export default async function Page() {
         <Container maxW="container.md">
 			<Stack direction="row" justify="space-between">
             	<Input w="96" placeholder="Search..." mb="10" bg="blackAlpha.50" borderColor="blackAlpha.100" />
-
-				<Link href="/dashboard/add-referral">
-					<IconButton title="Add Lead" icon={<Add />} size="sm" rounded="full" colorScheme="blue" bg="blue.400" />
-				</Link>
+				
+				<Box h="fit-content">
+					<Link href="/dashboard/add-referral">
+						<IconButton isDisabled={!checkStatus} title="Add Lead" icon={<Add />} size="sm" rounded="full" colorScheme="blue" bg="blue.400" />
+					</Link>
+				</Box>
 			</Stack>
 			<Suspense fallback={<Spinner />}>
-				{referrals
+				{referrals.length === 0 ? <Text my="20" textAlign="center" fontSize="lg" color="blackAlpha.700">No referrals yet...</Text> :
+				referrals
 				.map(referral => {
 					// const getDays = async () => {
 					// 	const date = await getDaysAgoOrToday(lead.updated);

@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import PersonalInfoForm from "./personal-info-form";
+import DirectDepositModal from "./direct-deposit-modal";
 
 
 export default async function Page({ params }) {
@@ -16,12 +17,12 @@ export default async function Page({ params }) {
         redirect('/');
     }
 
-    const supabase = await serverClientSupabase();
+    const supabase = serverClientSupabase();
 
     async function GetProfile() {
         const { data: agents, error } = await supabase
             .from('agents')
-            .select('first_name, last_name, email, phone_number, address, license, subscription: subscription_id (*)')
+            .select('first_name, last_name, email, phone_number, address, license, direct_deposit_info: direct_deposit_info (*), subscription: subscription_id (*)')
             .eq('id', userProfile.user.id);
 
         if (error) throw new Error(error.message);
@@ -31,6 +32,21 @@ export default async function Page({ params }) {
 
     const profile = await GetProfile();
 
+    if (profile.direct_deposit_info) {
+        const accountNumber = profile.direct_deposit_info.account_number;
+        var maskedAccountNumber = accountNumber && accountNumber.length >= 4
+                ? '*'.repeat(accountNumber.length - 4) + accountNumber.slice(-4)
+                : '';
+    
+        const nineDigitRoutingNumber = profile.direct_deposit_info.nine_digit_routing_number;
+        var maskedRoutingNumber = nineDigitRoutingNumber && nineDigitRoutingNumber.length > 0
+                  ? '*'.repeat(nineDigitRoutingNumber.length)
+                  : '';
+    }
+
+    const checkStatus = () => {
+        return profile.direct_deposit_info && profile.address;
+    }
     
     const options = { month: 'short', day: 'numeric', year: 'numeric' };
 
@@ -47,7 +63,7 @@ export default async function Page({ params }) {
             <Box>
                 <Stack direction="row" alignItems="center">
                         <Text fontSize="2xl" fontWeight="semibold">{profile.first_name} {profile.last_name}</Text>
-                        <Tag colorScheme="green" variant="subtle">Active</Tag>
+                        <Tag colorScheme={checkStatus() ? "green" : "red"} variant="subtle">{checkStatus() ? "Active" : "Inactive"}</Tag>
                 </Stack>
                 <Text fontSize="md" color="blackAlpha.600">{profile.email}</Text>
             </Box>
@@ -60,9 +76,9 @@ export default async function Page({ params }) {
                     <Link href="/dashboard/account/billing">
                         <Tab>Billing</Tab>
                     </Link>
-                    <Link href="/dashboard/account/settings">
+                    {/* <Link href="/dashboard/account/settings">
                         <Tab>Settings</Tab>
-                    </Link>
+                    </Link> */}
                 </TabList>
 
                 <TabPanels>
@@ -107,13 +123,40 @@ export default async function Page({ params }) {
                                 </Box>                                  
                             </Box>
                         </Box>
+
+                        <Box mt="5" p="5" w="full" bg="blackAlpha.50">
+                            <Stack direction="row" justify="space-between" alignItems="center">
+                                <Text fontSize="sm" fontWeight="semibold" color="blackAlpha.800">Direct Deposit Information</Text>
+
+                                {profile.direct_deposit_info ? <DirectDepositModal directDepositId={profile.direct_deposit_info.id}>Edit</DirectDepositModal> : <DirectDepositModal>Add Direct Deposit Information</DirectDepositModal>}
+                            </Stack>
+                            
+
+                            {profile.direct_deposit_info && 
+                                <>
+                                    <Text fontSize="md" fontWeight="semibold">Bank Name</Text>
+                                    <Input mt="2" bg="transparent" value={profile.direct_deposit_info.bank_name} />
+
+                                    <Stack direction={[ "column", "column", "row" ]} spacing="5" mt="5">
+                                        <Box w="full">
+                                            <Text fontSize="md" fontWeight="semibold">Account Number</Text>
+                                            <Input mt="2" value={maskedAccountNumber} />
+                                        </Box>
+                                        <Box w="full">
+                                            <Text fontSize="md" fontWeight="semibold">9 Digit Routing Number</Text>
+                                            <Input mt="2" value={maskedRoutingNumber} />
+                                        </Box>
+                                    </Stack>
+                                </> 
+                            }
+                        </Box>
                     </TabPanel>
 
-                    <TabPanel px="0">
+                    {/* <TabPanel px="0">
                         <Box mt="5" p="5" w="full" bg="blackAlpha.50">
                             <Text fontSize="sm" fontWeight="semibold" color="blackAlpha.800">Settings</Text>
                         </Box>
-                    </TabPanel>
+                    </TabPanel> */}
                 </TabPanels>
             </Tabs>
 

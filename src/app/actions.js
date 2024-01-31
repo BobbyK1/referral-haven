@@ -1,14 +1,13 @@
 'use server'
 
-import { createServerClient } from "@supabase/ssr"
-import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 import { NextResponse } from "next/server"
 import serverClientSupabase from "./util/serverClientSupabase"
 import fetchUser from "./util/fetchUser"
+import { z } from "zod"
 
 export async function AddPropertyToReferralLead(prevState, formData) {
-    const supabase = await serverClientSupabase();
+    const supabase = serverClientSupabase();
     const id = await formData.get('id');
 
     const propertyData = {
@@ -16,6 +15,18 @@ export async function AddPropertyToReferralLead(prevState, formData) {
         property_price: await formData.get('property_price'),
         property_goal: await formData.get('property_goal')
     }
+
+    const schema = z.object({
+        property_address: z.string().min(1),
+        property_price: z.string().min(1),
+        property_goal: z.string().min(1)
+    })
+
+    const response = schema.safeParse(propertyData);
+
+    if (response.error) {
+        return { message: "No data provided" }
+    } 
 
     // Read current properties stored on lead
     const { data: leads, error } = await supabase
@@ -74,8 +85,13 @@ export async function CreateReferralAgentLead(prevState, formData) {
         receiving_agent_name: await formData.get('receiving_agent_name'),
         receiving_agent_phone_number: await formData.get('receiving_agent_phone_number'),
         receiving_agent_email: await formData.get('receiving_agent_email'),
-        receiving_agent_aware: (await formData.get('receiving_agent_aware')) === 'on' ? true : false
+        receiving_agent_aware: (await formData.get('receiving_agent_aware')) === 'on' ? true : false,
+        status: "just starting"
     }
+
+    const schema = z.object({
+        first_name: z.string().min(1),
+    })
 
     const { data, error } = await supabase
         .from('leads')
@@ -92,7 +108,8 @@ export async function CreateReferralAgentLead(prevState, formData) {
                 receiving_agent_name: leadData.receiving_agent_name,
                 receiving_agent_phone_number: leadData.receiving_agent_phone_number,
                 receiving_agent_email: leadData.receiving_agent_email,
-                receiving_agent_aware: leadData.receiving_agent_aware
+                receiving_agent_aware: leadData.receiving_agent_aware,
+                status: "just starting"
             }
         ])
         .select();

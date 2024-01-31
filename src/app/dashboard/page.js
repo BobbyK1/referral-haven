@@ -16,7 +16,7 @@ async function GetAgent(supabase, id) {
 }
 
 async function GetRecentReferrals(supabase, id) {
-	const { data: leads, error } = await supabase.from('leads').select("*").eq("referring_agent", id);
+	const { data: leads, error } = await supabase.from('leads').select("*").eq("referring_agent", id).order('created_at', { ascending: false }).limit(5);
 
 	if (error) throw new Error(error.message)
 
@@ -56,30 +56,33 @@ export default async function Home({ params, searchParams }) {
 	const activeReferrals = await GetActiveReferrals(supabase, user.id);
 	const referrals = await GetRecentReferrals(supabase, user.id);
 
-	const checkStatus = () => {
-		return agent.address && agent.uploaded_direct_deposit_form && agent.uploaded_tax_document
+	async function CheckStatus() {
+		return agent.address && agent.direct_deposit_info
 	}
+
+	const checkStatus = await CheckStatus();
 
 	return (
 		<Container maxW="container.md">
+			{console.log(checkStatus)}
 
-			{!checkStatus() && <CompleteProfile />}
+			{!checkStatus && <CompleteProfile />}
 			
 			<Stack direction="row" justify="space-between" alignItems="center">
 				<Box>
 					<Text fontSize="2xl" fontWeight="semibold" color="blackAlpha.800">Welcome, {agent.first_name}!</Text>
 					
 					<Stack direction="row" alignItems="center" spacing="0.5">
-						<Status color={checkStatus() ? "green.300" : "red.300"} fontSize="xl" />
-						<Text fontSize="sm" color={checkStatus() ? "green.300" : "red.300"}>{checkStatus() ? "Active" : "Inactive"}</Text>
+						<Status color={checkStatus ? "green.300" : "red.300"} fontSize="xl" />
+						<Text fontSize="sm" color={checkStatus ? "green.300" : "red.300"}>{checkStatus ? "Active" : "Inactive"}</Text>
 					</Stack>
 				</Box>
 				<Link href="/dashboard/add-referral">
-					<IconButton isDisabled={!checkStatus()} title="Add Lead" icon={<Add />} size="sm" rounded="full" colorScheme="blue" bgColor="blue.400" />
+					<IconButton isDisabled={!checkStatus} title="Add Lead" icon={<Add />} size="sm" rounded="full" colorScheme="blue" bgColor="blue.400" />
 				</Link>
 			</Stack>
 
-			<Box mt="5" bg="blackAlpha.50" p="5" borderRadius="5">
+			{/* <Box mt="5" bg="blackAlpha.50" p="5" borderRadius="5">
 				<Text fontSize="sm" fontWeight="semibold" color="blackAlpha.800">Stay Up To Date</Text>
 
 				<SimpleGrid columns={[1, 3]} mt="5" gap={[5, 0]}>
@@ -103,7 +106,7 @@ export default async function Home({ params, searchParams }) {
 						<Text fontSize="xl" color="green.300">$9,155,000</Text>
 					</Stack>
 				</SimpleGrid>
-			</Box>
+			</Box> */}
 
 			<Text mt="10" mb="5" color="blackAlpha.800" fontSize="md" fontWeight="semibold">Your Recent Referrals</Text>
 			{/* .sort((a, b) => {
@@ -116,7 +119,8 @@ export default async function Home({ params, searchParams }) {
 			}) */}
 
 			<Suspense fallback={<Spinner />}>
-				{referrals
+				{referrals.length === 0 ? <Text my="20" textAlign="center" fontSize="lg" color="blackAlpha.700">No referrals yet...</Text> :
+				referrals
 					.map(referral => {
 						// const getDays = async () => {
 						// 	const date = await getDaysAgoOrToday(lead.updated);

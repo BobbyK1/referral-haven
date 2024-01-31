@@ -1,7 +1,5 @@
 'use client'
 
-'use client'
-
 import { UpdatePersonalInfo } from "@/app/actions";
 import { Box, Button, Grid, GridItem, Input, Select, SimpleGrid, Stack, Text, } from "@chakra-ui/react"
 import { useRouter } from "next/navigation";
@@ -63,25 +61,25 @@ export default function PersonalInfoForm({ initialInfo }) {
 
             <SimpleGrid columns="2" mt="5" alignItems="center">
                 <Text fontSize="md">Phone number</Text>
-                <Input defaultValue={profile.phone_number} borderColor="blackAlpha.400" name="phone_number" />
+                <Input defaultValue={profile.phone_number} borderColor="blackAlpha.400" name="phone_number" onChange={handleInputChange} />
             </SimpleGrid>
 
             <SimpleGrid columns="2" mt="5" >
                 <Text fontSize="md">Address</Text>
                 <Box>
-                    <Input defaultValue={profile.address?.address} borderColor="blackAlpha.400" name="address" />
+                    <Input defaultValue={profile.address?.address} borderColor="blackAlpha.400" name="address" onChange={handleInputChange} />
                     <Grid mt="2" gap="2" templateColumns="repeat(7, 1fr)">
                         <GridItem colSpan="3">
-                            <Input defaultValue={profile.address?.city} borderColor="blackAlpha.400" name="city" />
+                            <Input defaultValue={profile.address?.city} borderColor="blackAlpha.400" name="city" onChange={handleInputChange} />
                         </GridItem>
                         <GridItem colSpan="2">
-                            <Select defaultValue={profile.address?.state} borderColor="blackAlpha.400" name="state">
+                            <Select defaultValue={profile.address?.state} borderColor="blackAlpha.400" name="state" onChange={handleInputChange}>
                                 <option></option>
                                 <option value="IN">IN</option>
                             </Select>
                         </GridItem>
                         <GridItem colSpan="2">
-                            <Input defaultValue={profile.address?.zip} borderColor="blackAlpha.400" name="zip" />
+                            <Input defaultValue={profile.address?.zip} borderColor="blackAlpha.400" name="zip" onChange={handleInputChange} />
                         </GridItem>
                     </Grid>
                 </Box>

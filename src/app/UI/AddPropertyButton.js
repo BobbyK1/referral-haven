@@ -1,9 +1,9 @@
 'use client'
 
-import { Box, Button, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay, Select, Text, useDisclosure } from "@chakra-ui/react"
+import { Alert, AlertIcon, Box, Button, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay, Select, Text, useDisclosure } from "@chakra-ui/react"
 import { useFormStatus, useFormState } from 'react-dom';
 import { AddPropertyToReferralLead } from "../actions";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 const initialState = {
@@ -20,11 +20,14 @@ export default function AddPropertyButton({ id }) {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const router = useRouter();
     const [state, formAction] = useFormState(AddPropertyToReferralLead, initialState);
+    const [error, setError] = useState('');
 
     useEffect(() => {
         if (state.message === "success") {
             router.refresh();
             return onClose();
+        } else if (state.message === "No data provided") {
+            setError("Please fill out all fields.");
         }
     }, [state])
     return (
@@ -41,6 +44,7 @@ export default function AddPropertyButton({ id }) {
                         <ModalCloseButton />
 
                         <ModalBody>
+                            {error && <Alert variant="left-accent" borderRadius="5" mb="5" status="error"><AlertIcon /> {error}</Alert>}
                             <form action={formAction}>
                                 <Input type="hidden" value={id} name="id" /> 
 
