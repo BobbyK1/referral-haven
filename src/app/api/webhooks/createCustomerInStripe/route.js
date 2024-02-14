@@ -6,7 +6,7 @@ const stripe = new Stripe(process.env.NEXT_PUBLIC_STRIPE_SECRET_KEY);
 export async function POST(request) {
     const data = await request.json();
 
-    const supabase = routeHandlerAdminSupabase();
+    const supabase = await routeHandlerAdminSupabase();
 
     const customer = await stripe.customers.create({
         name: `${data.record.first_name} ${data.record.last_name}`,
