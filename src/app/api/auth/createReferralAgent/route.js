@@ -1,9 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
-import Stripe from 'stripe';
-
-const stripe = new Stripe(process.env.NEXT_PUBLIC_STRIPE_SECRET_KEY)
 
 export async function POST(request) {
     const userInfo = await request.json();
@@ -57,33 +54,6 @@ export async function POST(request) {
     }
 
     await SetUserInfo();
-
-    // async function CreateCustomerInStripe() {
-    //     try {
-    //         const customer = await stripe.customers.create({
-    //             name: `${userInfo.firstName} ${userInfo.lastName}`,
-    //             email: user.email,
-    //             phone: userInfo.phoneNumber,
-    //         })
-
-    //         if (customer) {
-    //             const { data, error } = await supabase
-    //                 .from('agents')
-    //                 .update({
-    //                     stripe_customer_id: customer.id
-    //                 })
-    //                 .eq('id', data.user.id)
-    //                 .select();
-
-    //             if (error) throw new Error(error.code);
-    //         }
-    //     } catch (error) {
-    //         throw new Error(error);
-    //     }
-        
-    // }
-
-    // await CreateCustomerInStripe();
 
     return NextResponse.json({ success: true });
 }

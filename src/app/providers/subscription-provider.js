@@ -26,7 +26,7 @@ export function SubscriptionProvider({ children }) {
 			if (user) {
 				const { data: agents, error } = await supabase
 					.from('agents')
-					.select('role')
+					.select('role,subscription_id')
 					.eq('id', user.id)
 
 				if (error) throw new Error(error.message);
@@ -34,19 +34,24 @@ export function SubscriptionProvider({ children }) {
 				setUser(agents[0].role)
 
 				if (agents[0].role.includes('referral_agent')) {
-					await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/stripe/checkSubscriptionStatus`, {
-						method: "GET",
-					})
-						.then(res => res.json())
-						.then(res => {
+					if (agents[0].subscription_id !== null) {
+						setActive(true);
+					} else {
+						setActive(false);
+					}
+					// await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/stripe/checkSubscriptionStatus`, {
+					// 	method: "GET",
+					// })
+					// 	.then(res => res.json())
+					// 	.then(res => {
 	
-							if (res.active) {
-								setActive(true);
-							} else {
-								setActive(false);
-							}
-						})
-						.catch(error => console.log(error))
+					// 		if (res.active) {
+					// 			setActive(true);
+					// 		} else {
+					// 			setActive(false);
+					// 		}
+					// 	})
+					// 	.catch(error => console.log(error))
 				}	
 			}
 
