@@ -1,34 +1,12 @@
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
+import routeHandlerAdminSupabase from "@/app/util/routeHandlerAdminSupabase";
 import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.NEXT_PUBLIC_STRIPE_SECRET_KEY);
 
 export async function POST(request) {
     const data = await request.json();
-    const cookieStore = cookies();
 
-    const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL,
-        process.env.SUPABASE_SERVICE_ROLE_KEY,
-        {
-            cookies: {
-                get(name) {
-                    return cookieStore.get(name)?.value
-                },
-                set(name, value, options) {
-                    cookieStore.set({ name, value, ...options })
-                },
-                remove(name, options) {
-                    cookieStore.set({ name, value: '', ...options })
-                }
-            },
-            auth: {
-                autoRefreshToken: false,
-                persistSession: false,
-            }
-        }
-    )
+    const supabase = routeHandlerAdminSupabase();
 
     const customer = await stripe.customers.create({
         name: `${data.record.first_name} ${data.record.last_name}`,

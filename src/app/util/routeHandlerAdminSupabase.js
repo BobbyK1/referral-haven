@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr"
 import { cookies } from "next/headers"
 
 
-export default async function routeHandlerAdminSupabase() {
+export default function routeHandlerAdminSupabase() {
     const cookieStore = cookies();
 
     const supabase = createServerClient(
