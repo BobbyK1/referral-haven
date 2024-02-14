@@ -2,14 +2,13 @@ import AddUpdateButton from "@/app/UI/AddUpdateButton";
 import { Account, Check, Edit, Email, Phone } from "@/app/UI/Icons";
 import { Alert, AlertIcon, Box, Button, Center, Container, Divider, IconButton, Stack, Tab, TabList, TabPanel, TabPanels, Tabs, Tag, Text, Tooltip } from "@chakra-ui/react";
 import Link from "next/link";
-import { cookies } from "next/headers";
-import { createServerClient } from "@supabase/ssr";
 import { redirect } from "next/navigation";
 import AddPropertyButton from "@/app/UI/AddPropertyButton";
 import ChangeStatusMenu from "@/app/UI/ChangeStatusMenu";
 import fetchUser from "@/app/util/fetchUser";
 import serverClientSupabase from "@/app/util/serverClientSupabase";
 import ReferralUpdates from "@/app/UI/ReferralUpdates";
+import AssignAgent from "./AssignAgent";
 
 export default async function Page({ params }) {
     const id = await params.id;
@@ -25,7 +24,7 @@ export default async function Page({ params }) {
     async function GetLead() {
         const { data: leads, error } = await supabase
             .from('leads')
-            .select('*')
+            .select('*, assigned_agent: assigned_agent (first_name, last_name)')
             .eq('id', id);
 
         if (error) throw new Error(error.message);
@@ -82,11 +81,16 @@ export default async function Page({ params }) {
             </Stack>
 
             <Box mt="5">
-                        <Stack direction="row" alignItems="center">
-                            <Account />
-                            <Text fontSize="sm">Not Assigned</Text>
-                        </Stack>
-                    </Box>
+                <Stack direction="row" alignItems="center">
+                    <Account />
+                    {
+                        profile.role.includes('admin') ? <AssignAgent id={id} assignedAgent={lead.assigned_agent} />
+                        : lead.assigned_agent ? <Text fontSize="sm">{lead.assigned_agent.first_name} {lead.assigned_agent.last_name}</Text> : <Text fontSize="sm">Not Assigned</Text>
+                    }
+                    
+                        
+                </Stack>
+            </Box>
 
             <Tabs mt="5" colorScheme="black">
                 <TabList>
@@ -134,7 +138,7 @@ export default async function Page({ params }) {
                             <Stack direction="row" alignItems="center" justify="space-between">
                                 <Text fontSize="md">Updates</Text>
 
-                                {!profile.role.includes('referral_agent') && <AddUpdateButton />}
+                                {!profile.role.includes('referral_agent') && <AddUpdateButton id={id} />}
                             </Stack>
                         </Box>
 

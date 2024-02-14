@@ -57,7 +57,7 @@ export default async function Home({ params, searchParams }) {
 	const referrals = await GetRecentReferrals(supabase, user.id);
 
 	async function CheckStatus() {
-		return agent.address && agent.direct_deposit_info
+		return agent.address
 	}
 
 	const checkStatus = await CheckStatus();

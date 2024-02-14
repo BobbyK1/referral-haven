@@ -1,7 +1,7 @@
 import { Box, Stack, Text } from "@chakra-ui/react";
 import serverClientSupabase from "../util/serverClientSupabase";
 import { Suspense } from "react";
-import { Exclamation } from "./Icons";
+import { Email, Exclamation, Note, Phone } from "./Icons";
 
 export default function ReferralUpdates({ id }) {
     const supabase = serverClientSupabase();
@@ -46,6 +46,9 @@ export default function ReferralUpdates({ id }) {
                                 <Stack direction="row" justify="space-between" alignItems="center">
                                     <Stack direction="row" spacing="2" alignItems="center">
                                         {update.type === "statusChange" && <Exclamation fontSize="2xl" color="blue.400" />}
+                                        {update.type === "calledOrTextedLead" && <Phone fontSize="2xl" color="blue.400" />}
+                                        {update.type === "emailedLead" && <Email fontSize="2xl" color="blue.400" />}
+                                        {update.type === "noteAdded" && <Note fontSize="2xl" color="blue.400" />}
                                         <Text fontSize="sm">{update.message}</Text>
                                     </Stack>
                                     <Text fontSize="sm" color="blackAlpha.600">{formattedDate}</Text>

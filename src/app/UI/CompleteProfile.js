@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, Step, StepDescription, StepIcon, StepIndicator, StepNumber, StepSeparator, StepStatus, StepTitle, Stepper, Text } from "@chakra-ui/react"
+import { Alert, AlertDescription, AlertIcon, AlertTitle, Box, Button, Stack, Step, StepDescription, StepIcon, StepIndicator, StepNumber, StepSeparator, StepStatus, StepTitle, Stepper, Text } from "@chakra-ui/react"
 import { createBrowserClient } from "@supabase/ssr"
 import Link from "next/link"
 import { useEffect, useState } from "react"
@@ -52,33 +52,51 @@ export default function CompleteProfile() {
     }, [])
 
     return (
-        <Box w="full" mt="5" bg="blackAlpha.50" p="5" mb="5">
-            <Text fontSize="sm" fontWeight="semibold" color="blackAlpha.800">Complete Your Profile</Text>
+        <>
+            <Alert status="warning" size="sm" mb="10">
+                <AlertIcon /> 
+
+                <AlertTitle fontWeight="semibold">
+                    Add an address to go active
+                </AlertTitle>
             
-            <Stepper index={currentStep} mt="4">
-                {steps.map((step, index) => (
-                    <Step key={index}>
-                        <Link href={step.link}>
-                            <StepIndicator>
-                                <StepStatus
-                                    complete={<StepIcon />}
-                                    incomplete={<StepNumber />}
-                                    active={<StepNumber />}
-                                />
-                            </StepIndicator>
+                <AlertDescription ml="auto">
+                    <Button as={Link} href="/dashboard/account/profile" size="sm" variant="ghost">Add Address</Button>
+                </AlertDescription>
+            </Alert>
+        </>
+        // <Box w="full" mt="5" bg="blackAlpha.50" p="5" mb="5">
+        //     {/* <Text fontSize="sm" fontWeight="semibold" color="blackAlpha.800">Complete Your Profile</Text> */}
 
-                            <Box flexShrink='0'>
-                                
-                                <StepTitle>{step.title}</StepTitle>
-                                <StepDescription>{step.description}</StepDescription>
-                                
-                            </Box>
-                        </Link>
+        //     <Stack direction="row" justify="space-between" alignItems="center" mt="5">
+        //         <Text fontSize="lg">Add an address to go active.</Text>
+        //         <Button variant="ghost" size="sm">Add Address</Button>
+        //     </Stack>
+            
+            // {/* <Stepper index={currentStep} mt="4">
+            //     {steps.map((step, index) => (
+            //         <Step key={index}>
+            //             <Link href={step.link}>
+            //                 <StepIndicator>
+            //                     <StepStatus
+            //                         complete={<StepIcon />}
+            //                         incomplete={<StepNumber />}
+            //                         active={<StepNumber />}
+            //                     />
+            //                 </StepIndicator>
 
-                        <StepSeparator />
-                    </Step>
-                ))}
-            </Stepper>
-        </Box>
+            //                 <Box flexShrink='0'>
+                                
+            //                     <StepTitle>{step.title}</StepTitle>
+            //                     <StepDescription>{step.description}</StepDescription>
+                                
+            //                 </Box>
+            //             </Link>
+
+            //             <StepSeparator />
+            //         </Step>
+            //     ))}
+            // </Stepper> */}
+        // </Box>
     )
 }

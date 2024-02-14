@@ -38,11 +38,7 @@ export default function PersonalInfoForm({ initialInfo }) {
 
     return (
         <form action={formAction}>
-            <Stack direction="row" alignItems="center" justify="space-between">
-                <Text fontSize="sm" fontWeight="semibold" color="blackAlpha.800">Personal Information</Text>
-
-                <Button variant="ghost" size="sm">Edit</Button>
-            </Stack>
+            <Text fontSize="sm" fontWeight="semibold" color="blackAlpha.800">Personal Information</Text>
 
             <SimpleGrid columns="2" mt="8" alignItems="center">
                 <Text fontSize="md">First name</Text>

@@ -2,7 +2,7 @@
 
 import { Icon } from "@chakra-ui/react"
 import { GoDotFill } from "react-icons/go"
-import { AiOutlineCheck, AiOutlineDown, AiOutlineEdit, AiOutlineExclamationCircle, AiOutlineMail, AiOutlineNotification, AiOutlinePhone, AiOutlinePlus, AiOutlineRight, AiOutlineSetting, AiOutlineUser } from 'react-icons/ai'
+import { AiOutlineCheck, AiOutlineDown, AiOutlineEdit, AiOutlineExclamationCircle, AiOutlineFileText, AiOutlineMail, AiOutlineNotification, AiOutlinePhone, AiOutlinePlus, AiOutlineRight, AiOutlineSetting, AiOutlineUser } from 'react-icons/ai'
 
 
 export const Status = (props) => {
@@ -51,4 +51,8 @@ export const Exclamation = (props) => {
 
 export const Account = (props) => {
     return <Icon as={AiOutlineUser} {...props} />
+}
+
+export const Note = (props) => {
+    return <Icon as={AiOutlineFileText} {...props} />
 }
