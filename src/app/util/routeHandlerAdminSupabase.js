@@ -1,31 +1,35 @@
 import { createServerClient } from "@supabase/ssr"
 import { cookies } from "next/headers"
 
-
-export default function routeHandlerAdminSupabase() {
+export default async function routeHandlerAdminSupabase() {
     const cookieStore = cookies();
-
-    const supabase = createServerClient(
+    return createServerClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL,
-        process.env.SUPABASE_SERVICE_ROLE_KEY,
+        process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY,
         {
-            cookies: {
-                get(name) {
-                    return cookieStore.get(name)?.value
-                },
-                set(name, value, options) {
-                    cookieStore.set({ name, value, ...options })
-                },
-                remove(name, options) {
-                    cookieStore.set({ name, value: '', ...options })
-                }
+          cookies: {
+            get(name) {
+              return cookieStore.get(name)?.value
             },
-            auth: {
-                autoRefreshToken: false,
-                persistSession: false,
-            }
+            set(name, value, options) {
+              try {
+                cookieStore.set({ name, value, ...options })
+              } catch (error) {
+                // The `set` method was called from a Server Component.
+                // This can be ignored if you have middleware refreshing
+                // user sessions.
+              }
+            },
+            remove(name, options) {
+              try {
+                cookieStore.set({ name, value: '', ...options })
+              } catch (error) {
+                // The `delete` method was called from a Server Component.
+                // This can be ignored if you have middleware refreshing
+                // user sessions.
+              }
+            },
+          },
         }
-    )
-
-    return supabase;
+      )
 }
