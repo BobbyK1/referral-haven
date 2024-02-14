@@ -1,5 +1,5 @@
-import { createServerClient } from "@supabase/ssr";
-import { cookies, headers } from "next/headers";
+import routeHandlerAdminSupabase from "@/app/util/routeHandlerAdminSupabase";
+import { headers } from "next/headers";
 import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.NEXT_PUBLIC_STRIPE_SECRET_KEY);
@@ -14,29 +14,7 @@ export async function POST(request) {
             throw new Error(`No Stripe signature found.`);
         }
 
-        const cookieStore = cookies();
-
-        const supabase = createServerClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL,
-            process.env.SUPABASE_SERVICE_ROLE_KEY,
-            {
-                cookies: {
-                    get(name) {
-                        return cookieStore.get(name)?.value
-                    },
-                    set(name, value, options) {
-                        cookieStore.set({ name, value, ...options })
-                    },
-                    remove(name, options) {
-                        cookieStore.set({ name, value: '', ...options })
-                    }
-                },
-                auth: {
-                    autoRefreshToken: false,
-                    persistSession: false,
-                }
-            }
-        )
+        const supabase = await routeHandlerAdminSupabase();
 
         // Verify the webhook signature
         const event = stripe.webhooks.constructEvent(
