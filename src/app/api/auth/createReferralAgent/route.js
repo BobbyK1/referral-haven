@@ -55,5 +55,21 @@ export async function POST(request) {
 
     await SetUserInfo();
 
+    const options = {
+        method: 'POST',
+        headers: {accept: 'application/json', 'content-type': 'application/json', 'api-key': process.env.BREVO_API_KEY},
+        body: JSON.stringify({
+          attributes: {FIRSTNAME: userInfo.firstName, LASTNAME: userInfo.last_name},
+          updateEnabled: true,
+          email: userInfo.email,
+          listIds: [9]
+        })
+      };
+      
+    await fetch('https://api.brevo.com/v3/contacts', options)
+        .then(response => response.json())
+        .then(response => console.log(response))
+        .catch(err => console.error(err));
+
     return NextResponse.json({ success: true });
 }

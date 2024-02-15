@@ -1,12 +1,11 @@
 import { Container, Flex, IconButton, Menu, MenuButton, MenuItem, MenuList, Stack, Text } from "@chakra-ui/react"
 import Image from "next/image"
 import Link from "next/link"
-import { cookies } from "next/headers"
-import { createServerClient } from "@supabase/ssr"
-import { Settings } from "../UI/Icons"
+import { Question, Settings } from "../UI/Icons"
 import { LogoutMenuButton } from "../UI/Logout"
 import { SubscriptionProvider } from "../providers/subscription-provider"
 import { redirect } from "next/navigation"
+import fetchUser from "../util/fetchUser"
 
 export const metadata = {
   title: 'Referral Haven',
@@ -15,36 +14,11 @@ export const metadata = {
 
 export default async function Layout({ children }) {
 
-	const cookieStore = cookies()
-
-	const supabase = createServerClient(
-		process.env.NEXT_PUBLIC_SUPABASE_URL,
-		process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-		{
-		cookies: {
-			get(name) {
-			return cookieStore.get(name)?.value
-			},
-		},
-		}
-	)
-
-	const { data: { user }, error } = await supabase.auth.getUser();
+	const { user, role } = await fetchUser(true)
 
     if (!user) {
         redirect('/')
     }
-
-    async function GetRole() {
-        const { data: agents, error } = await supabase
-            .from('agents')
-            .select('role')
-            .eq('id', user.id);
-
-        return agents[0].role
-    }
-
-    const role = await GetRole();
 
 	return (
         <>
@@ -69,16 +43,22 @@ export default async function Layout({ children }) {
                             <Link href="/dashboard/referrals">
                                 <Text _hover={{ color: "blackAlpha.800" }}  transition="0.1s ease" fontSize="sm" fontWeight="semibold" color="blackAlpha.700">Referrals</Text>
                             </Link>
+
+                            <Link href="/dashboard">
+                                <IconButton mr="-4" ml="-1" variant="ghost" rounded="full" icon={<Question fontSize="xl" />} />
+                            </Link>
+
                             <Menu>
-                                <MenuButton rounded="full" variant="ghost" as={IconButton} icon={<Settings />} />
+                                <MenuButton rounded="full" variant="ghost" as={IconButton} icon={<Settings fontSize="xl" />} />
 
                                 <MenuList>
                                     <Link href="/dashboard/account/profile">
                                         <MenuItem>Profile</MenuItem>
                                     </Link>
-                                    <Link href="/dashboard/account/billing">
-                                        <MenuItem>Billing</MenuItem>
-                                    </Link>
+                                    {role.includes('referral_agent') &&
+                                        <Link href="/dashboard/account/billing">
+                                            <MenuItem>Billing</MenuItem>
+                                        </Link>}
                                     {/* <Link href="/dashboard/account/settings">
                                         <MenuItem>Settings</MenuItem>
                                     </Link> */}

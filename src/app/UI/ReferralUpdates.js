@@ -1,7 +1,7 @@
 import { Box, Stack, Text } from "@chakra-ui/react";
 import serverClientSupabase from "../util/serverClientSupabase";
 import { Suspense } from "react";
-import { Email, Exclamation, Note, Phone } from "./Icons";
+import { AddAgent, Email, Exclamation, Note, Phone } from "./Icons";
 
 export default function ReferralUpdates({ id }) {
     const supabase = serverClientSupabase();
@@ -25,8 +25,7 @@ export default function ReferralUpdates({ id }) {
                     {getUpdates().then(updates =>
                         updates.length === 0 ? <Text mt="5" color="blackAlpha.500" textAlign="center" fontSize="md">No updates yet...</Text> :
                         updates.map(update => {
-                            var timestamp = "2024-01-04T20:48:43.064419+00:00";
-                            var date = new Date(timestamp);
+                            var date = new Date(update.created_at);
 
                             // Extracting components of the date
                             var year = date.getFullYear();
@@ -34,13 +33,12 @@ export default function ReferralUpdates({ id }) {
                             var day = date.getDate();
                             var hours = date.getHours();
                             var minutes = date.getMinutes();
-                            var seconds = date.getSeconds();
 
                             var period = hours >= 12 ? 'PM' : 'AM';
                             hours = hours % 12 || 12; // Convert 0 to 12
 
                             // Formatting the date
-                            var formattedDate = `${month.toString()}/${day.toString()}/${year} at ${hours.toString()}:${minutes.toString()} ${period}`;
+                            var formattedDate = `${month.toString()}/${day.toString()}/${year} at ${hours.toString()}:${minutes < 9 ? "0" + minutes.toString() : minutes.toString()} ${period}`;
                             return (
                             <Box mt="2" key={update.id} w="full" bgColor="blackAlpha.50" p="5">
                                 <Stack direction="row" justify="space-between" alignItems="center">
@@ -49,6 +47,7 @@ export default function ReferralUpdates({ id }) {
                                         {update.type === "calledOrTextedLead" && <Phone fontSize="2xl" color="blue.400" />}
                                         {update.type === "emailedLead" && <Email fontSize="2xl" color="blue.400" />}
                                         {update.type === "noteAdded" && <Note fontSize="2xl" color="blue.400" />}
+                                        {update.type === "agentAssigned" && <AddAgent fontSize="2xl" color="blue.400" />}
                                         <Text fontSize="sm">{update.message}</Text>
                                     </Stack>
                                     <Text fontSize="sm" color="blackAlpha.600">{formattedDate}</Text>

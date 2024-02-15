@@ -4,12 +4,11 @@ import fetchUser from "@/app/util/fetchUser";
 import { redirect } from "next/navigation";
 import serverClientSupabase from "@/app/util/serverClientSupabase";
 
-
 export default async function Page() {
 
-    const { user } = await fetchUser();
+    const { user, role } = await fetchUser(true);
 
-    if (!user) {
+    if (!user || role.includes('preferred_agent')) {
         redirect('/');
     }
 
@@ -17,10 +16,10 @@ export default async function Page() {
 
     const { data: agents, error } = await supabase
         .from('agents')
-        .select('address')
+        .select('status')
         .eq('id', user.id);
 
-    if (!agents[0].address) {
+    if (!agents[0].status) {
         redirect('/dashboard')
     }
 
