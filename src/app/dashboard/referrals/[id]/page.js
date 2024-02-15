@@ -1,6 +1,6 @@
 import AddUpdateButton from "@/app/UI/AddUpdateButton";
-import { Account, Check, Edit, Email, Phone } from "@/app/UI/Icons";
-import { Alert, AlertIcon, Box, Button, Center, Container, Divider, IconButton, Stack, Tab, TabList, TabPanel, TabPanels, Tabs, Tag, Text, Tooltip } from "@chakra-ui/react";
+import { Account, Check, Document, Edit, Email, Phone } from "@/app/UI/Icons";
+import { Alert, AlertIcon, Box, Button, Center, Container, Divider, Flex, IconButton, SimpleGrid, Stack, Tab, TabList, TabPanel, TabPanels, Tabs, Tag, Text, Tooltip } from "@chakra-ui/react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import AddPropertyButton from "@/app/UI/AddPropertyButton";
@@ -9,6 +9,7 @@ import fetchUser from "@/app/util/fetchUser";
 import serverClientSupabase from "@/app/util/serverClientSupabase";
 import ReferralUpdates from "@/app/UI/ReferralUpdates";
 import AssignAgent from "./AssignAgent";
+import PdfSignautureEmbed from "./PdfSignatureEmbed";
 
 export default async function Page({ params }) {
     const id = await params.id;
@@ -151,8 +152,7 @@ export default async function Page({ params }) {
                     <TabPanel px="0">
                         {lead.referral_type === "hasAgent" &&
                             <>
-                                <Text>Missing: Referral Agreement</Text>
-                                <Divider mt="5" borderColor="blackAlpha.300" />
+                                <PdfSignautureEmbed email={profile.user.email} />
                             </>
                         }
                     </TabPanel>

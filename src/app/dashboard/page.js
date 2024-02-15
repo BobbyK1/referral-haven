@@ -47,6 +47,7 @@ export default async function Home({ params, searchParams }) {
 
 	return (
 		<Container maxW="container.md">
+
 			{!checkStatus && <CompleteProfile />}
 			
 			<Stack direction="row" justify="space-between" alignItems="center">
@@ -58,11 +59,11 @@ export default async function Home({ params, searchParams }) {
 						<Text fontSize="sm" color={checkStatus ? "green.300" : "red.300"}>{checkStatus ? "Active" : "Inactive"}</Text>
 					</Stack>
 				</Box>
-				
-				<Link href="/dashboard/add-referral">
-					<IconButton isDisabled={!checkStatus} title="Add Lead" icon={<Add />} size="sm" rounded="full" colorScheme="blue" bgColor="blue.400" />
-				</Link>
-				
+				{!role.includes('preferred_agent') && 
+					<Link href="/dashboard/add-referral">
+						<IconButton isDisabled={!checkStatus} title="Add Lead" icon={<Add />} size="sm" rounded="full" colorScheme="blue" bgColor="blue.400" />
+					</Link>
+				}
 			</Stack>
 
 			{/* <Box mt="5" bg="blackAlpha.50" p="5" borderRadius="5">

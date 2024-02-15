@@ -49,13 +49,13 @@ export default async function Page() {
         <Container maxW="container.md">
 			<Stack direction="row" justify="space-between">
             	<Input w="96" placeholder="Search..." mb="10" bg="blackAlpha.50" borderColor="blackAlpha.100" />
-				
+				{!role.includes('preferred_agent') &&
 				<Box h="fit-content">
 					<Link href="/dashboard/add-referral">
 						<IconButton isDisabled={!checkStatus} title="Add Lead" icon={<Add />} size="sm" rounded="full" colorScheme="blue" bg="blue.400" />
 					</Link>
 				</Box>
-				
+				}
 			</Stack>
 			<Suspense fallback={<Spinner />}>
 				{referrals.length === 0 ? <Text my="20" textAlign="center" fontSize="lg" color="blackAlpha.700">No referrals yet...</Text> :
