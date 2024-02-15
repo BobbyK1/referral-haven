@@ -1,8 +1,28 @@
 import { Center, Container,Text} from "@chakra-ui/react";
 import AddReferralForm from "./add-lead-form";
+import fetchUser from "@/app/util/fetchUser";
+import { redirect } from "next/navigation";
+import serverClientSupabase from "@/app/util/serverClientSupabase";
 
 
 export default async function Page() {
+
+    const { user } = await fetchUser();
+
+    if (!user) {
+        redirect('/');
+    }
+
+    const supabase = serverClientSupabase();
+
+    const { data: agents, error } = await supabase
+        .from('agents')
+        .select('address')
+        .eq('id', user.id);
+
+    if (!agents[0].address) {
+        redirect('/dashboard')
+    }
 
     return (
         <Container maxW="container.md">

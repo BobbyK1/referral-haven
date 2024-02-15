@@ -52,7 +52,7 @@ export default function PersonalInfoForm({ initialInfo }) {
 
             <SimpleGrid columns="2" mt="5" alignItems="center">
                 <Text fontSize="md">Email</Text>
-                <Input defaultValue={profile.email} borderColor="blackAlpha.400" name="email" onChange={handleInputChange}/>
+                <Input isDisabled defaultValue={profile.email} borderColor="blackAlpha.400" name="email" onChange={handleInputChange}/>
             </SimpleGrid>
 
             <SimpleGrid columns="2" mt="5" alignItems="center">

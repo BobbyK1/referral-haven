@@ -34,8 +34,6 @@ export default function CompleteProfile() {
 
             if (error) throw new Error(error.message);
 
-            console.log(agents[0].direct_deposit_info)
-
 
             if (!agents[0].address) {
                 setCurrentStep(0);

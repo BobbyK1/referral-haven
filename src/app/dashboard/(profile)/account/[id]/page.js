@@ -6,6 +6,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import PersonalInfoForm from "./personal-info-form";
 import DirectDepositModal from "./direct-deposit-modal";
+import AddLicenseModal from "./add-license-modal";
+import LicenseCard from "../LicenseCard";
 
 
 export default async function Page({ params }) {
@@ -45,7 +47,7 @@ export default async function Page({ params }) {
     }
 
     const checkStatus = () => {
-        return profile.direct_deposit_info && profile.address;
+        return profile.address;
     }
     
     const options = { month: 'short', day: 'numeric', year: 'numeric' };
@@ -93,13 +95,9 @@ export default async function Page({ params }) {
                             <SimpleGrid mt="5" columns="3" gap="3">
                                 <>
                                     {licenses.map(license => (
-                                        <Box key={license.licenseNumber} _hover={{ bg: "blackAlpha.100", cursor: "pointer"}} transition="0.2s ease" p="5" borderColor="blackAlpha.400" borderWidth="thin" borderRadius="5">
-                                            <Text textAlign="center">{license.licenseType}: {license.licenseNumber}</Text>
-                                        </Box>
+                                        <LicenseCard license={license} />
                                     ))}
-                                    <Box _hover={{ bg: "blackAlpha.100", cursor: "pointer"}} transition="0.2s ease" p="5" borderColor="blackAlpha.400" borderWidth="thin" borderRadius="5">
-                                        <Text textAlign="center" fontWeight="semibold">Add License</Text>
-                                    </Box>
+                                    <AddLicenseModal id={userProfile.user.id} />
                                 </>
                             </SimpleGrid>
                         </Box>
@@ -124,7 +122,7 @@ export default async function Page({ params }) {
                             </Box>
                         </Box>
 
-                        <Box mt="5" p="5" w="full" bg="blackAlpha.50">
+                        {/* <Box mt="5" p="5" w="full" bg="blackAlpha.50">
                             <Stack direction="row" justify="space-between" alignItems="center">
                                 <Text fontSize="sm" fontWeight="semibold" color="blackAlpha.800">Direct Deposit Information</Text>
 
@@ -149,7 +147,7 @@ export default async function Page({ params }) {
                                     </Stack>
                                 </> 
                             }
-                        </Box>
+                        </Box> */}
                     </TabPanel>
 
                     {/* <TabPanel px="0">

@@ -6,6 +6,55 @@ import serverClientSupabase from "./util/serverClientSupabase"
 import fetchUser from "./util/fetchUser"
 import { z } from "zod"
 
+export async function AddLicenseToAgent(prevState, formData) {
+    const supabase = serverClientSupabase();
+    const id = await formData.get('id');
+
+    const licenseData = {
+        licenseType: formData.get('licenseType'),
+        licenseNumber: formData.get('licenseNumber')
+    }
+
+    const schema = z.object({
+        licenseType: z.string(),
+        licenseNumber: z.string().min(1)
+    })
+
+    const response = schema.safeParse(licenseData);
+
+    if (response.error) return { message: "No data provided" };
+
+    const GetPrevLicense = async () => {
+        const { data: agents, error } = await supabase
+            .from('agents')
+            .select('license')
+            .eq('id', id);
+
+        if (error) throw new Error(error.message);
+
+        return agents[0].license
+    }
+
+    const License = await GetPrevLicense();
+    
+    const { data, error } = await supabase
+        .from('agents')
+        .update({
+            license: [
+                ...License,
+                {
+                    licenseType: licenseData.licenseType,
+                    licenseNumber: licenseData.licenseNumber
+                }
+            ]
+        })
+        .eq('id', id)
+
+    if (error) return { message: "Unable to update licenses. Please try again later."}
+    
+    return { message: "success" }
+}
+
 export async function AddPropertyToReferralLead(prevState, formData) {
     const supabase = serverClientSupabase();
     const id = await formData.get('id');

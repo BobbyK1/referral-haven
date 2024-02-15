@@ -8,16 +8,16 @@ import serverClientSupabase from "@/app/util/serverClientSupabase";
 
 export default async function Page() {
 
-	const profile = await fetchUser();
+	const { user, role } = await fetchUser(true);
 
-	if (!profile.user) {
+	if (!user) {
 		redirect('/');
 	}
 
-	const supabase = await serverClientSupabase();
+	const supabase = serverClientSupabase();
 
 	async function GetRecentReferrals() {
-		const { data: leads, error } = await supabase.from('leads').select("*").eq("referring_agent", profile.user.id);
+		const { data: leads, error } = await supabase.from('leads').select("*").eq("referring_agent", user.id);
 
 		if (error) throw new Error(error.message)
 
@@ -28,7 +28,7 @@ export default async function Page() {
 		const { data: agents, error } = await supabase
 			.from('agents')
 			.select('address,direct_deposit_info')
-			.eq('id', profile.user.id);
+			.eq('id', user.id);
 
 		if (error) throw new Error(error.message);
 
@@ -38,9 +38,7 @@ export default async function Page() {
 	const agent = await GetAgent();
 
 	async function CheckStatus() {
-		
-
-		return agent.address && agent.direct_deposit_info
+		return agent.address
 	}
 
 	const checkStatus = await CheckStatus();
@@ -57,6 +55,7 @@ export default async function Page() {
 						<IconButton isDisabled={!checkStatus} title="Add Lead" icon={<Add />} size="sm" rounded="full" colorScheme="blue" bg="blue.400" />
 					</Link>
 				</Box>
+				
 			</Stack>
 			<Suspense fallback={<Spinner />}>
 				{referrals.length === 0 ? <Text my="20" textAlign="center" fontSize="lg" color="blackAlpha.700">No referrals yet...</Text> :

@@ -6,6 +6,8 @@ import { createServerClient } from "@supabase/ssr";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import CompleteProfile from "../UI/CompleteProfile";
+import serverClientSupabase from "../util/serverClientSupabase";
+import fetchUser from "../util/fetchUser";
 
 async function GetAgent(supabase, id) {
 	const { data: agents, error } = await supabase.from('agents').select('*').eq('id', id);
@@ -23,37 +25,18 @@ async function GetRecentReferrals(supabase, id) {
 	return leads
 }
 
-async function GetActiveReferrals(supabase, id) {
-	const { count, error } = await supabase.from('leads').select('*', { count: 'exact', head: true }).eq("referring_agent", id).eq('status', 'active')
-
-	if (error) throw new Error(error.message);
-
-	return count;
-}
-
 export default async function Home({ params, searchParams }) {
 	const search = await searchParams;
-	const cookieStore = cookies()
+	
+	const supabase = serverClientSupabase();
 
-    const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-        {
-        cookies: {
-            get(name) {
-            	return cookieStore.get(name)?.value
-            },
-        },
-    })
-
-	const { data: { user }, error } = await supabase.auth.getUser();
+	const { user, role } = await fetchUser(true);
 
 	if (!user) {
 		redirect('/');
 	}
 
 	const agent = await GetAgent(supabase, user.id);
-	const activeReferrals = await GetActiveReferrals(supabase, user.id);
 	const referrals = await GetRecentReferrals(supabase, user.id);
 
 	async function CheckStatus() {
@@ -64,8 +47,6 @@ export default async function Home({ params, searchParams }) {
 
 	return (
 		<Container maxW="container.md">
-			{console.log(checkStatus)}
-
 			{!checkStatus && <CompleteProfile />}
 			
 			<Stack direction="row" justify="space-between" alignItems="center">
@@ -77,9 +58,11 @@ export default async function Home({ params, searchParams }) {
 						<Text fontSize="sm" color={checkStatus ? "green.300" : "red.300"}>{checkStatus ? "Active" : "Inactive"}</Text>
 					</Stack>
 				</Box>
+				
 				<Link href="/dashboard/add-referral">
 					<IconButton isDisabled={!checkStatus} title="Add Lead" icon={<Add />} size="sm" rounded="full" colorScheme="blue" bgColor="blue.400" />
 				</Link>
+				
 			</Stack>
 
 			{/* <Box mt="5" bg="blackAlpha.50" p="5" borderRadius="5">

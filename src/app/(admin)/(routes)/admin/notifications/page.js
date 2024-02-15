@@ -25,8 +25,6 @@ export default async function Page() {
 
     const notifications = await GetNotifications();
 
-    console.log(notifications)
-
     return (
         <>
             <Container mt="10" maxW="8xl">

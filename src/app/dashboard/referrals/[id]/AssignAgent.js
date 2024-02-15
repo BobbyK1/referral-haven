@@ -67,7 +67,6 @@ export default function AssignAgent({ id, assignedAgent }) {
                     {hits.length > 0 ? 
                         <>
                             {hits.map(hit => {
-                                console.log(hit)
                                 
                                 return (
                                     <MenuItem key={hit.objectID} fontSize="sm" onClick={() => handleAssignedAgent(hit.objectID)}>{hit.firstName} {hit.lastName} ({hit.email})</MenuItem>

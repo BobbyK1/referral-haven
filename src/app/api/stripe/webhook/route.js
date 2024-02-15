@@ -29,8 +29,6 @@ export async function POST(request) {
             const customerId = invoice.customer;
             const subscriptionId = invoice.lines.data[0].subscription;
 
-            console.log(customerId)
-
             // Get customer's id
             const { data: customer, error: customerError } = await supabase
                 .from('agents')
