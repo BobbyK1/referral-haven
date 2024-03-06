@@ -57,7 +57,6 @@ export default async function Page() {
 					</Link>
 				</Box>
 				}
-				}
 			</Stack>
 			<Suspense fallback={<Spinner />}>
 				{referrals.length === 0 ? <Text my="20" textAlign="center" fontSize="lg" color="blackAlpha.700">No referrals yet...</Text> :
