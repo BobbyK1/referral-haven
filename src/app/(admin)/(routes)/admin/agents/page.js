@@ -16,7 +16,7 @@ export default async function Page() {
 
     const supabase = serverClientSupabase();
 
-    async function GetAgents() {
+    async function GetReferralAgents() {
         const { data: agents, error } = await supabase
             .from('agents')
             .select('*')
@@ -27,7 +27,19 @@ export default async function Page() {
         return agents;
     }
 
-    const agents = await GetAgents();
+    async function GetPreferredAgents() {
+        const { data: agents, error } = await supabase
+            .from('agents')
+            .select('*')
+            .contains('role', ['preferred_agent']);
+
+            if (error) throw new Error(error.message);
+
+            return agents;
+    }
+
+    const referralAgents = await GetReferralAgents();
+    const preferredAgents = await GetPreferredAgents();
 
     return (
         <Container maxW="8xl" mt="8">
@@ -53,6 +65,7 @@ export default async function Page() {
                 <TabList>
                     <Tab fontWeight="semibold" color="blackAlpha.600" _selected={{ color: "blue.500", borderBottomWidth: "thin", borderColor: "blue.500" }}>Referral Agents</Tab>
                     <Tab fontWeight="semibold" color="blackAlpha.600" _selected={{ color: "blue.500", borderBottomWidth: "thin", borderColor: "blue.500" }}>Guest Agents</Tab>
+                    <Tab fontWeight="semibold" color="blackAlpha.600" _selected={{ color: "blue.500", borderBottomWidth: "thin", borderColor: "blue.500" }}>Preferred Agents</Tab>
                 </TabList>
                 <TabPanels>
                     <TabPanel px="0">
@@ -69,14 +82,51 @@ export default async function Page() {
                                 </Thead>
                                 <Tbody>
                                     <>
-                                        {agents.map(agent => {
+                                        {referralAgents.map(agent => {
                                             return (
                                                 <Tr href={`/admin/agents/${agent.id}`} _hover={{ bg: "blackAlpha.50", cursor: "pointer" }} transition="0.2s ease">
                                                     
                                                         <Td>{agent.first_name} {agent.last_name}</Td>
                                                         <Td>{agent.email}</Td>
                                                         <Td>{agent.phone_number}</Td>
-                                                        <Td><Tag variant="subtle" colorScheme={agent.address && agent.uploaded_direct_deposit_form ? "green" : "red" }>{agent.address && agent.uploaded_direct_deposit_form ? "Active" : "Inactive"}</Tag></Td>
+                                                        <Td><Tag variant="subtle" colorScheme={agent.status ? "green" : "red" }>{agent.status ? "Active" : "Inactive"}</Tag></Td>
+                                                        <Td><IconButton size="sm" rounded="full" bgColor="blackAlpha.300"  icon={<Options fontSize="xl" />} /></Td>
+                                                    
+                                                </Tr>
+                                            )
+                                        })}
+                                    </>
+                                </Tbody>
+                            </Table>
+                        </TableContainer>
+                    </TabPanel>
+
+                    <TabPanel>
+
+                    </TabPanel>
+
+                    <TabPanel px="0">
+                        <TableContainer borderRadius="5" mt="5" borderWidth="thin" borderColor="blackAlpha.300">
+                            <Table>
+                                <Thead bgColor="gray.50">
+                                    <Tr>
+                                        <Th fontWeight="normal" fontSize="sm">Name</Th>
+                                        <Th fontWeight="normal" fontSize="sm">Email</Th>
+                                        <Th fontWeight="normal" fontSize="sm">Phone</Th>
+                                        <Th fontWeight="normal" fontSize="sm">Status</Th>
+                                        <Th />
+                                    </Tr>
+                                </Thead>
+                                <Tbody>
+                                    <>
+                                        {preferredAgents.map(agent => {
+                                            return (
+                                                <Tr href={`/admin/agents/${agent.id}`} _hover={{ bg: "blackAlpha.50", cursor: "pointer" }} transition="0.2s ease">
+                                                    
+                                                        <Td>{agent.first_name} {agent.last_name}</Td>
+                                                        <Td>{agent.email}</Td>
+                                                        <Td>{agent.phone_number}</Td>
+                                                        <Td><Tag variant="subtle" colorScheme={agent.status ? "green" : "red" }>{agent.status ? "Active" : "Inactive"}</Tag></Td>
                                                         <Td><IconButton size="sm" rounded="full" bgColor="blackAlpha.300"  icon={<Options fontSize="xl" />} /></Td>
                                                     
                                                 </Tr>

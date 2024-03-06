@@ -16,10 +16,10 @@ export default async function Page() {
 
     const { data: agents, error } = await supabase
         .from('agents')
-        .select('address')
+        .select('status')
         .eq('id', user.id);
 
-    if (!agents[0].address) {
+    if (!agents[0].status) {
         redirect('/dashboard')
     }
 

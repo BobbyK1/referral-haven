@@ -40,41 +40,130 @@ export async function POST(request) {
             })
             
             const agent = customer[0];
-            // const updatedAgent = { ...agent, subscription_id: subscriptionId,  } 
 
             const periodStart = new Date(invoice.lines.data[0].period.start * 1000).toISOString();
             const periodEnd = new Date(invoice.lines.data[0].period.end * 1000).toISOString();
             
             // Insert subscription to database
-            const { data, error } = await supabase
-                .from('subscriptions')
-                .insert({
-                    subscription_id: subscriptionId,
-                    period_start: periodStart,
-                    period_end: periodEnd
-                })
-                .select();
 
-            if (error) return new Response(`Update stripe_customer_id error: ${error.message}`, {
+            const { data: subData, error: subError } = await supabase
+                .from('agents')
+                .select('subscription_id')
+                .eq('stripe_customer_id', agent);
+
+            if (subError) return new Response(`Subscription retrieval from DB error: ${subError.message}`, {
                 status: 400
-            });
+            })
 
-            if (data) {
-                // Update agent subscription_id column
-                const { data: update, error } = await supabase
-                    .from('agents')
+            if (subData[0]) {
+                // If subscription exists, update row
+                const { data, error } = await supabase
+                    .from('subscriptions')
                     .update({
-                        subscription_id: data[0].id
+                        subscription_id: subscriptionId,
+                        period_start: periodStart,
+                        period_end: periodEnd,
+                        expired: false,
+                        paused: false
                     })
-                    .eq('stripe_customer_id', agent.stripe_customer_id)
+                    .eq('id', subData[0].subscription_id);
 
-                if (error) return new Response(`Unable to update subscription_id column: ${error.message}`, {
+                    if (error) return new Response(`Unable to update subscription in DB: ${error.message}`, {
+                        status: 400
+                    })
+            } else {
+                // If subscription does not exist, add row to DB
+                const { data, error } = await supabase
+                    .from('subscriptions')
+                    .insert({
+                        subscription_id: subscriptionId,
+                        period_start: periodStart,
+                        period_end: periodEnd,
+                        expired: false,
+                        paused: false
+                    })
+                    .select();
+
+                if (error) return new Response(`Update stripe_customer_id error: ${error.message}`, {
                     status: 400
-                })
+                });
+
+                if (data) {
+                    // Update agent subscription_id column
+                    const { data: update, error } = await supabase
+                        .from('agents')
+                        .update({
+                            subscription_id: data[0].id
+                        })
+                        .eq('stripe_customer_id', agent.stripe_customer_id)
+    
+                    if (error) return new Response(`Unable to update subscription_id column: ${error.message}`, {
+                        status: 400
+                    })
+                }
             }
 
             return new Response("Webhook received and processed.", {
                 status: 200,
+            })
+
+        } else if (event.type === "customer.subscription.deleted") {
+            // Grab customer info
+            const invoice = event.data.object;
+            const customerId = invoice.customer;
+
+            const { data: subId, error: subError } = await supabase
+                .from('agents')
+                .select('subscription_id')
+                .eq('stripe_customer_id', customerId);
+
+            if (subError) return new Response(`Subscription retrieval from DB error: ${subError.message}`, {
+                status: 400
+            })
+
+            const { data, error } = await supabase
+                .from('subscriptions')
+                .update({
+                    subscription_id: null,
+                    period_start: null,
+                    period_end: null,
+                    expired: true
+                })
+                .eq('id', subId[0].subscription_id);
+
+            if (error) return new Response(`Unable to update subscription: ${error.message}`, {
+                status: 400
+            })
+
+            return new Response(`Successfully deleted customer subscription.`, {
+                status: 200
+            })
+        } else if (event.type === 'customer.subscription.paused') {
+            const invoice = event.data.object;
+            const customerId = invoice.customer;
+
+            const { data: subId, error: subError } = await supabase
+                .from('agents')
+                .select('subscription_id')
+                .eq('stripe_customer_id', customerId);
+
+            if (subError) return new Response(`Subscription retrieval from DB error: ${subError.message}`, {
+                status: 400
+            })
+
+            const { data, error } = await supabase
+                .from('subscriptions')
+                .update({
+                    paused: true
+                })
+                .eq('id', subId[0].subscription_id);
+
+            if (error) return new Response(`Unable to update subscription: ${error.message}`, {
+                status: 400
+            })
+
+            return new Response(`Customer subscription has been paused.`, {
+                status: 200
             })
         } else {
             return new Response("Unhandled event type received.", {

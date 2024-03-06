@@ -1,6 +1,6 @@
 import AddUpdateButton from "@/app/UI/AddUpdateButton";
-import { Account, Check, Document, Edit, Email, Phone } from "@/app/UI/Icons";
-import { Alert, AlertIcon, Box, Button, Center, Container, Divider, Flex, IconButton, SimpleGrid, Stack, Tab, TabList, TabPanel, TabPanels, Tabs, Tag, Text, Tooltip } from "@chakra-ui/react";
+import { Account, Check, Email, Phone } from "@/app/UI/Icons";
+import { Alert, AlertIcon, Box, Button, Center, Container, Divider, IconButton, SimpleGrid, Stack, Tab, TabList, TabPanel, TabPanels, Table, TableContainer, Tabs, Tag, Tbody, Td, Text, Th, Thead, Tooltip, Tr } from "@chakra-ui/react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import AddPropertyButton from "@/app/UI/AddPropertyButton";
@@ -10,13 +10,18 @@ import serverClientSupabase from "@/app/util/serverClientSupabase";
 import ReferralUpdates from "@/app/UI/ReferralUpdates";
 import AssignAgent from "./AssignAgent";
 import PdfSignautureEmbed from "./PdfSignatureEmbed";
+import EditReferralProfile from "./EditReferralProfile";
+import dynamic from "next/dynamic";
+
+const FileUpload = dynamic(() => import('./FileUpload'), { ssr: false });
 
 export default async function Page({ params }) {
     const id = await params.id;
+    const months = ["Jan.", "Feb.", "Mar.", "Apr.", "May", "June", "July", "Aug.", "Sep.", "Oct.", "Nov.", "Dec."];
 
-    const profile = await fetchUser(true);
+    const { user, role } = await fetchUser(true);
 
-    if (!profile.user) {
+    if (!user) {
         redirect('/');
     }
 
@@ -25,7 +30,7 @@ export default async function Page({ params }) {
     async function GetLead() {
         const { data: leads, error } = await supabase
             .from('leads')
-            .select('*, assigned_agent: assigned_agent (first_name, last_name)')
+            .select('*, referring_agent: referring_agent (*), assigned_agent: assigned_agent (*)')
             .eq('id', id);
 
         if (error) throw new Error(error.message);
@@ -33,7 +38,29 @@ export default async function Page({ params }) {
         return leads[0]
     }
 
+    async function GetUploads() {
+        if (role.includes('admin')) {
+            const { data: uploads, error } = await supabase
+                .from('referral_uploads')
+                .select('*')
+                .eq('assigned_to', id)
+                .order('created_at', { ascending: false });
+
+            return uploads;
+        } else {
+            const { data: uploads, error } = await supabase
+                .from('referral_uploads')
+                .select('*')
+                .eq('assigned_to', id)
+                .not('private', 'eq', true)
+                .order('created_at', { ascending: false });
+
+            return uploads;
+        }
+    }
+
     const lead = await GetLead();
+    const uploads = await GetUploads();
 
     if (!lead) {
         
@@ -49,7 +76,7 @@ export default async function Page({ params }) {
 
     return (
         <Container maxW="container.md">
-            {profile.user.id !== lead.referring_agent && <Alert variant="left-accent" status="error" borderRadius="5" mb="5"><AlertIcon /> You must sign the referral agreement before receiving this client's details. Please navigate to the Documents tab to complete the paperwork.</Alert>}
+            {user.id === lead.assigned_agent && <Alert variant="left-accent" status="error" borderRadius="5" mb="5"><AlertIcon /> You must sign the referral agreement before receiving this client's details. Please navigate to the Documents tab to complete the paperwork.</Alert>}
             <Stack direction={["column", "row"]} alignItems={["flex-start", "center"]} justify="space-between">
                 <Box>
                     <Stack direction="row" alignItems="center">
@@ -58,7 +85,7 @@ export default async function Page({ params }) {
                         {lead.status && 
                             <>
                                 {
-                                    !profile.role.includes('referral_agent') ? <ChangeStatusMenu id={id} status={lead.status} /> : <Tag variant="solid" colorScheme="blue" rounded="full" textTransform="capitalize">{lead.status}</Tag>
+                                    role.includes('preferred_agent') || role.includes('admin') ? <ChangeStatusMenu id={id} status={lead.status} /> : <Tag variant="solid" colorScheme="blue" rounded="full" textTransform="capitalize">{lead.status}</Tag>
                                 }
                                 
                                
@@ -77,26 +104,28 @@ export default async function Page({ params }) {
                         <IconButton icon={<Email fontSize="xl" color="white" />} title="Email" size="sm" bg="blue.400" colorScheme="blue" rounded="full" />
                     </Link>
 
-                    <IconButton icon={<Edit fontSize="xl" color="white" />} title="Edit" size="sm" bg="blue.400" colorScheme="blue" rounded="full" />
+                    {role.includes('admin') || lead.referring_agent === user.id ? <EditReferralProfile lead={lead} /> : null}
                 </Stack>
             </Stack>
 
             <Box mt="5">
-                <Stack direction="row" alignItems="center">
-                    <Account />
-                    {
-                        profile.role.includes('admin') ? <AssignAgent id={id} assignedAgent={lead.assigned_agent} />
-                        : lead.assigned_agent ? <Text fontSize="sm">{lead.assigned_agent.first_name} {lead.assigned_agent.last_name}</Text> : <Text fontSize="sm">Not Assigned</Text>
-                    }
-                    
+                {role.includes('admin') &&
+                    <Stack direction="row" alignItems="center">
+                        <Account />
+                        {
+                            role.includes('admin') ? <AssignAgent id={id} assignedAgent={lead.assigned_agent} />
+                            : lead.assigned_agent ? <Text fontSize="sm">{lead.assigned_agent.first_name} {lead.assigned_agent.last_name}</Text> : <Text fontSize="sm">Not Assigned</Text>
+                        }
                         
-                </Stack>
+                    </Stack>
+                }
             </Box>
 
             <Tabs mt="5" colorScheme="black">
                 <TabList>
                     <Tab>Details</Tab>
                     <Tab>Documents</Tab>
+                    {role.includes('admin') && <Tab>Agent Info</Tab>}
                 </TabList>
 
                 <TabPanels>
@@ -109,7 +138,7 @@ export default async function Page({ params }) {
 
                         <Box mt="5">
                             <Stack direction="row" w="full" justify="space-between" alignItems="center">
-                                <Text fontSize="md">Property</Text>
+                                <Text fontSize="md">Transaction(s)</Text>
                                 <AddPropertyButton id={id} />
                             </Stack>
                             <Divider mt="4" borderColor="blackAlpha.400" />
@@ -139,23 +168,111 @@ export default async function Page({ params }) {
                             <Stack direction="row" alignItems="center" justify="space-between">
                                 <Text fontSize="md">Updates</Text>
 
-                                {!profile.role.includes('referral_agent') && <AddUpdateButton id={id} />}
+                                {user.id === lead.assigned_agent || role.includes("admin") && <AddUpdateButton id={id} />}
                             </Stack>
                         </Box>
 
                         <Divider mt="4" borderColor="blackAlpha.400" />
 
                         <Box mt="5">
-                                <ReferralUpdates id={id} />
+                            <ReferralUpdates id={id} />
                         </Box>
                     </TabPanel>
                     <TabPanel px="0">
-                        {lead.referral_type === "hasAgent" &&
-                            <>
-                                <PdfSignautureEmbed email={profile.user.email} />
-                            </>
-                        }
+                        {/* <Stack direction="row" mt="5" alignItems="center">
+                            <Box w="full" />
+                            {role.includes('admin') && <FileUpload referralId={id} />}
+                        </Stack> */}
+
+                        {role.includes('admin') && <FileUpload referralId={id} />}
+                        
+                        <TableContainer px="0">
+                            <Table variant="simple" size="sm">
+                                <Thead>
+                                    <Tr>
+                                        <Th px="0">File Name</Th>
+                                        <Th></Th>
+                                        <Th>Date</Th>
+                                    </Tr>
+                                </Thead>
+
+                                <Tbody>
+                                    {uploads.map(upload => {
+                                        const date = new Date(upload.created_at);
+
+                                        const month = months[date.getMonth()];
+
+                                        return (
+                                            <Tr key={upload.id} _hover={{ bg: "blackAlpha.50" }} transition="0.1s ease">
+                                                <Td px="0" color="blue.500" _hover={{ textDecor: "underline" }}>{upload.file_name}</Td>
+                                                <Td />
+                                                <Td>{month} {date.getDate()}, {date.getFullYear()}</Td>
+                                            </Tr>
+                                        )
+                                    })}
+                                </Tbody>
+                            </Table>
+                        </TableContainer>
+
+                        {uploads.length === 0 && <Text fontSize="md" mt="5" color="blackAlpha.500" textAlign="center">No files uploaded...</Text>}
                     </TabPanel>
+                    {role.includes('admin') &&
+                        <TabPanel px="0">
+                            <Box mt="5">
+                                <Text fontSize="md" fontWeight="semibold">Referring Agent</Text>
+                                <Divider />
+
+                                <Box mt="4">
+                                    <SimpleGrid columns="2">
+                                        <Box>
+                                            <Text fontSize="sm" color="blackAlpha.600">Name</Text>
+                                            <Text fontSize="md">{lead.referring_agent.first_name} {lead.referring_agent.last_name}</Text>
+                                        </Box>
+                                        <Box>
+                                            <Text fontSize="sm" color="blackAlpha.600">Email</Text>
+                                            <Text fontSize="md">{lead.referring_agent.email}</Text>
+                                        </Box>
+                                        <Box mt="5">
+                                            <Text fontSize="sm" color="blackAlpha.600">Phone Number</Text>
+                                            <Text fontSize="md">{lead.referring_agent.phone_number}</Text>
+                                        </Box>
+                                        <Box mt="5">
+                                            <Text fontSize="sm" color="blackAlpha.600">Role</Text>
+                                            <Text fontSize="md" textTransform="capitalize">{lead.referring_agent.role.toString().replace("_", " ")}</Text>
+                                        </Box>
+                                    </SimpleGrid>
+                                </Box>
+                            </Box>
+                            
+                            <Box mt="10">
+                                <Text fontSize="md" fontWeight="semibold">Receiving Agent</Text>
+                                <Divider />
+
+                                {lead.assigned_agent ? 
+                                    <Box mt="4">
+                                        <SimpleGrid columns="2">
+                                            <Box>
+                                                <Text fontSize="sm" color="blackAlpha.600">Name</Text>
+                                                <Text fontSize="md">{lead.assigned_agent.first_name} {lead.assigned_agent.last_name}</Text>
+                                            </Box>
+                                            <Box>
+                                                <Text fontSize="sm" color="blackAlpha.600">Email</Text>
+                                                <Text fontSize="md">{lead.assigned_agent.email}</Text>
+                                            </Box>
+                                            <Box mt="5">
+                                                <Text fontSize="sm" color="blackAlpha.600">Phone Number</Text>
+                                                <Text fontSize="md">{lead.assigned_agent.phone_number}</Text>
+                                            </Box>
+                                            <Box mt="5">
+                                                <Text fontSize="sm" color="blackAlpha.600">Role</Text>
+                                                <Text fontSize="md" textTransform="capitalize">{lead.assigned_agent.role.toString().replace("_", " ")}</Text>
+                                            </Box>
+                                        </SimpleGrid>
+                                    </Box>
+                                : <Text mt="8" fontSize="md" color="blackAlpha.600" textAlign="center">No agent assigned...</Text>}
+                            </Box>
+                        </TabPanel>
+                    }
                 </TabPanels>
             </Tabs>
 

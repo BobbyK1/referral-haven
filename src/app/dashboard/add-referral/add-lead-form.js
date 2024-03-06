@@ -1,9 +1,10 @@
 'use client'
 
 import { CreateReferralAgentLead } from "@/app/actions";
-import { Box, Button, Collapse, Divider, Input, Select, Stack, Switch, Text, Textarea } from "@chakra-ui/react"
+import { Alert, AlertDescription, AlertIcon, AlertTitle, Box, Button, Collapse, Divider, Input, Select, Stack, Switch, Text, Textarea } from "@chakra-ui/react"
 import { useState } from "react";
 import { useFormStatus, useFormState } from 'react-dom';
+import { PatternFormat } from "react-number-format";
 
 const initialState = {
     message: null
@@ -37,7 +38,7 @@ export default function AddReferralForm() {
                 </Stack>
 
                 <Text fontSize="md" mt="4">Phone number</Text>
-                <Input type="tel" name="phone_number" mt="2" borderColor="blackAlpha.400" placeholder="123-456-7890" />
+                <Input as={PatternFormat} format="(###) ###-####" mask=" " type="tel" name="phone_number" mt="2" borderColor="blackAlpha.400" placeholder="(123) 456-7890" />
 
                 <Text fontSize="md" mt="4">Email</Text>
                 <Input type="email" name="email" mt="2" borderColor="blackAlpha.400" placeholder="johndoe@example.com" />
@@ -55,6 +56,28 @@ export default function AddReferralForm() {
                     <option value="hasAgent">I have an agent</option>
                     <option value="havenPreferred">Haven Preferred®</option>
                 </Select>
+
+                <Collapse in={select === "havenPreferred"} animateOpacity unmountOnExit>
+                    <Alert
+                        mt="5"
+                        status='success'
+                        variant='top-accent'
+                        flexDirection='column'
+                        alignItems='center'
+                        justifyContent='center'
+                        textAlign='center'
+                        height='200px'
+                        borderRadius="5"
+                        >
+                        <AlertIcon boxSize='25px' mr={0} />
+                        <AlertTitle mt={4} mb={4} fontSize='lg'>
+                            We'll choose your agent!
+                        </AlertTitle>
+                        <AlertDescription maxWidth='md'>
+                            You will receive a <strong>25% referral fee</strong> and keep <strong>100%</strong> of it.
+                        </AlertDescription>
+                    </Alert>
+                </Collapse>
 
                 <Collapse in={select === "hasAgent"} animateOpacity unmountOnExit>
                     <Text fontSize="sm" mt="4">Agent Details</Text>

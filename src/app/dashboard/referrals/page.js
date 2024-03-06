@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import { Add } from "@/app/UI/Icons";
 import fetchUser from "@/app/util/fetchUser";
 import serverClientSupabase from "@/app/util/serverClientSupabase";
+import LeadSearch from "./LeadSearch";
 
 export default async function Page() {
 
@@ -48,13 +49,14 @@ export default async function Page() {
     return (
         <Container maxW="container.md">
 			<Stack direction="row" justify="space-between">
-            	<Input w="96" placeholder="Search..." mb="10" bg="blackAlpha.50" borderColor="blackAlpha.100" />
+            	<LeadSearch id={user.id} />
 				{!role.includes('preferred_agent') &&
 				<Box h="fit-content">
 					<Link href="/dashboard/add-referral">
 						<IconButton isDisabled={!checkStatus} title="Add Lead" icon={<Add />} size="sm" rounded="full" colorScheme="blue" bg="blue.400" />
 					</Link>
 				</Box>
+				}
 				}
 			</Stack>
 			<Suspense fallback={<Spinner />}>

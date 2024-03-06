@@ -5,6 +5,7 @@ import { NextResponse } from "next/server"
 import serverClientSupabase from "./util/serverClientSupabase"
 import fetchUser from "./util/fetchUser"
 import { z } from "zod"
+import algoliasearch from "algoliasearch"
 
 export async function AddLicenseToAgent(prevState, formData) {
     const supabase = serverClientSupabase();
@@ -120,7 +121,7 @@ export async function AddPropertyToReferralLead(prevState, formData) {
 }
 
 export async function CreateReferralAgentLead(prevState, formData) {
-    const supabase = await serverClientSupabase();
+    const supabase = serverClientSupabase();
     const profile = await fetchUser();
 
     const leadData = {
@@ -161,9 +162,29 @@ export async function CreateReferralAgentLead(prevState, formData) {
                 status: "just starting"
             }
         ])
-        .select();
+        .select('id');
 
     if (error) NextResponse.error(error.message);
+
+    const client = algoliasearch(process.env.NEXT_PUBLIC_ALGOLIA_APP_ID, process.env.NEXT_PUBLIC_ALOGLIA_LEAD_INDEX_API_KEY);
+
+    const index = client.initIndex(process.env.NEXT_PUBLIC_ALGOLIA_LEAD_INDEX);
+
+    const record = {
+        objectID: data[0].id,
+        firstName: leadData.first_name,
+        lastName: leadData.last_name,
+        email: leadData.email,
+        phoneNumber: leadData.phone_number,
+        referringAgent: profile.user.id
+    }
+
+    try {
+        await index.saveObject(record);
+    } catch (error) {
+        console.log(error);
+        return { message: "Unable to save object to Algolia.", }
+    }
 
     return redirect(`${process.env.NEXT_PUBLIC_BASE_URL}/dashboard/referrals/${data[0].id}`);
 }
@@ -179,7 +200,6 @@ export async function UpdatePersonalInfo(prevState, formData) {
     const profileData = {
         first_name: await formData.get('first_name'),
         last_name: await formData.get('last_name'),
-        email: await formData.get('email'),
         phone_number: await formData.get('phone_number'),
         address: {
             address: await formData.get('address'),

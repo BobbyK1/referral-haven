@@ -63,8 +63,9 @@ export default function AddLicenseModal({ id }) {
 
                                 <Input type="text" placeholder="License Number" name="licenseNumber" />
                             </Stack>
-
-                            <SubmitButton />
+                            <Box w="fit-content" ml="auto">
+                                <SubmitButton />
+                            </Box>
                         </form>
                     </ModalBody>
 
