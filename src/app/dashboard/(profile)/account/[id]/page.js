@@ -41,8 +41,11 @@ export default async function Page({ params }) {
     }
 
     const profile = await GetProfile();
+
+    let sub;
+    
     if (role.includes('referral_agent')) {
-        const sub = await GetSubscription();
+        sub = await GetSubscription();
     }
 
     // if (profile.direct_deposit_info) {
