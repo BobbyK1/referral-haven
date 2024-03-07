@@ -7,8 +7,6 @@ import CompleteProfile from "../UI/CompleteProfile";
 import serverClientSupabase from "../util/serverClientSupabase";
 import fetchUser from "../util/fetchUser";
 
-
-
 export default async function Page() {
 	
 	const supabase = serverClientSupabase();
@@ -22,7 +20,7 @@ export default async function Page() {
 	async function GetAgent() {
 		const { data: agents, error } = await supabase
 			.from('agents')
-			.select('first_name, address')
+			.select('first_name, address, status')
 			.eq('id', user.id);
 	
 		if (error) throw new Error(error.message);
@@ -59,29 +57,24 @@ export default async function Page() {
 	const agent = await GetAgent(user.id);
 	const referrals = role.includes("preferred_agent") ? await GetAssignedReferrals() : await GetRecentReferrals();
 
-	async function CheckStatus() {
-		return agent.address
-	}
-
-	const checkStatus = await CheckStatus();
 
 	return (
 		<Container maxW="container.md">
 
-			{!checkStatus && <CompleteProfile />}
+			{!agent.status && <CompleteProfile />}
 			
 			<Stack direction="row" justify="space-between" alignItems="center">
 				<Box>
 					<Text fontSize="2xl" fontWeight="semibold" color="blackAlpha.800">Welcome, {agent.first_name}!</Text>
 					
 					<Stack direction="row" alignItems="center" spacing="0.5">
-						<Status color={checkStatus ? "green.300" : "red.300"} fontSize="xl" />
-						<Text fontSize="sm" color={checkStatus ? "green.300" : "red.300"}>{checkStatus ? "Active" : "Inactive"}</Text>
+						<Status color={agent.status ? "green.300" : "red.300"} fontSize="xl" />
+						<Text fontSize="sm" color={agent.status ? "green.300" : "red.300"}>{agent.status ? "Active" : "Inactive"}</Text>
 					</Stack>
 				</Box>
 				{!role.includes('preferred_agent') && 
 					<Link href="/dashboard/add-referral">
-						<IconButton isDisabled={!checkStatus} title="Add Lead" icon={<Add />} size="sm" rounded="full" colorScheme="blue" bgColor="blue.400" />
+						<IconButton isDisabled={!agent.status} title="Add Lead" icon={<Add />} size="sm" rounded="full" colorScheme="blue" bgColor="blue.400" />
 					</Link>
 				}
 			</Stack>

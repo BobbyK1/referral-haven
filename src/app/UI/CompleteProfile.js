@@ -1,9 +1,10 @@
-'use client'
-
 import { Alert, AlertDescription, AlertIcon, AlertTitle, Box, Button, Stack, Step, StepDescription, StepIcon, StepIndicator, StepNumber, StepSeparator, StepStatus, StepTitle, Stepper, Text } from "@chakra-ui/react"
 import { createBrowserClient } from "@supabase/ssr"
 import Link from "next/link"
-import { useEffect, useState } from "react"
+import serverClientSupabase from "../util/serverClientSupabase"
+import fetchUser from "../util/fetchUser"
+import RequestSignature from "./RequestSignature"
+// import { useEffect, useState } from "react"
 
 const steps = [
     { title: "Update", description: "Address", link: "/dashboard/account/profile" },
@@ -11,57 +12,63 @@ const steps = [
     // { title: "Upload", description: "W-9 Tax Form", link: "/dashboard/account/profile" }
 ]
 
-export default function CompleteProfile() {
-    const [profile, setProfile] = useState({});
-    const [currentStep, setCurrentStep] = useState();
+export default async function CompleteProfile() {
+    const supabase = serverClientSupabase();
+    
+    const { user, role } = await fetchUser(true);
 
-    const supabase = createBrowserClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-    )
+    async function GetProfile() {
+        const { data: agents, error } = await supabase
+            .from('agents')
+            .select('address, signed_independent_contractor_agreement, transferred_license, first_name, last_name, email')
+            .eq('id', user.id);
 
-    useEffect(() => {
+        if (error) throw new Error(error.message)
 
-        const getProfile = async () => {
-            const { data: { user }, userError } = await supabase.auth.getUser();
+        return agents[0];
+    }
 
-            if (userError) throw new Error(userError.message);
+    async function GetSubmissions() {
+        const { data: submissions, error } = await supabase
+            .from('agent_agreements')
+            .select('*')
+            .eq('user_id', user.id)
 
-            const { data: agents, error } = await supabase
-                .from('agents')
-                .select('address, direct_deposit_info: direct_deposit_info (*)')
-                .eq('id', user.id);
+        if (error) throw new Error(error.message);
 
-            if (error) throw new Error(error.message);
+        return submissions[0];
+    }
 
-
-            if (!agents[0].address) {
-                setCurrentStep(0);
-            } else if (!agents[0].direct_deposit_info) {
-                setCurrentStep(1);
-            } else {
-                setCurrentStep(2);
-            }
-
-            return setProfile(agents[0])
-        }
-
-        getProfile();
-    }, [])
+    const profile = await GetProfile();
+    const submission = await GetSubmissions();
 
     return (
         <>
-            <Alert status="warning" size="sm" mb="10">
-                <AlertIcon /> 
+            {!profile.address &&
+                <Alert status="warning" size="sm" mb="5">
+                    <AlertIcon /> 
 
-                <AlertTitle fontWeight="semibold">
-                    Add an address to go active
-                </AlertTitle>
-            
-                <AlertDescription ml="auto">
-                    <Button as={Link} href="/dashboard/account/profile" size="sm" variant="ghost">Add Address</Button>
-                </AlertDescription>
-            </Alert>
+                    <AlertTitle fontWeight="semibold">
+                        Please add a personal address
+                    </AlertTitle>
+                
+                    <AlertDescription ml="auto">
+                        <Button as={Link} href="/dashboard/account/profile?focus=address" size="sm" variant="ghost">Add Address</Button>
+                    </AlertDescription>
+                </Alert>
+            }
+
+            {!profile.signed_independent_contractor_agreement &&
+                <Alert status="warning" size="sm" mb="10">
+                    <AlertIcon />
+
+                    <AlertTitle fontWeight="semibold">Please sign our Independent Contractor Agreement</AlertTitle>
+
+                    <AlertDescription ml="auto">
+                        {submission ? <Text fontSize="sm">Sent to {profile.email}</Text> : <RequestSignature firstName={profile.first_name} lastName={profile.last_name} email={profile.email} address={profile.address} id={user.id} />}
+                    </AlertDescription>
+                </Alert>
+            }
         </>
         // <Box w="full" mt="5" bg="blackAlpha.50" p="5" mb="5">
         //     {/* <Text fontSize="sm" fontWeight="semibold" color="blackAlpha.800">Complete Your Profile</Text> */}
