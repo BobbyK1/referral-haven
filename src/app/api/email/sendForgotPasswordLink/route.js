@@ -1,7 +1,7 @@
 import routeHandlerAdminSupabase from "@/app/util/routeHandlerAdminSupabase";
 
 export async function POST() {
-    const supabase = await routeHandlerAdminSupabase();
+    const supabase = routeHandlerAdminSupabase();
 
     const { data, error } = await supabase
         .auth
