@@ -1,8 +1,8 @@
 'use client'
 
 import { UpdatePersonalInfo } from "@/app/actions";
-import { Box, Button, Grid, GridItem, Input, Select, SimpleGrid, Stack, Text, } from "@chakra-ui/react"
-import { useRouter } from "next/navigation";
+import { Box, Button, Grid, GridItem, Input, Popover, PopoverAnchor, PopoverArrow, PopoverBody, PopoverContent, Select, SimpleGrid, Stack, Text, } from "@chakra-ui/react"
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useFormStatus, useFormState } from 'react-dom';
 
@@ -17,6 +17,7 @@ function SubmitButton() {
 }
 
 export default function PersonalInfoForm({ initialInfo }) {
+    const searchParams = useSearchParams();
     const [state, formAction] = useFormState(UpdatePersonalInfo, initialState)
     const [hasChanges, setHasChanges] = useState(false);
     const router = useRouter();
@@ -26,7 +27,8 @@ export default function PersonalInfoForm({ initialInfo }) {
     useEffect(() => {
         if (state.message === "success") {
             setHasChanges(null)
-            return router.refresh();
+            router.refresh();
+            router.push('/dashboard/account/profile')
         }
     }, [state])
 
@@ -60,26 +62,37 @@ export default function PersonalInfoForm({ initialInfo }) {
                 <Input defaultValue={profile.phone_number} borderColor="blackAlpha.400" name="phone_number" onChange={handleInputChange} />
             </SimpleGrid>
 
-            <SimpleGrid columns="2" mt="5" >
-                <Text fontSize="md">Address</Text>
-                <Box>
-                    <Input defaultValue={profile.address?.address} borderColor="blackAlpha.400" name="address" onChange={handleInputChange} />
-                    <Grid mt="2" gap="2" templateColumns="repeat(7, 1fr)">
-                        <GridItem colSpan="3">
-                            <Input defaultValue={profile.address?.city} borderColor="blackAlpha.400" name="city" onChange={handleInputChange} />
-                        </GridItem>
-                        <GridItem colSpan="2">
-                            <Select defaultValue={profile.address?.state} borderColor="blackAlpha.400" name="state" onChange={handleInputChange}>
-                                <option></option>
-                                <option value="IN">IN</option>
-                            </Select>
-                        </GridItem>
-                        <GridItem colSpan="2">
-                            <Input defaultValue={profile.address?.zip} borderColor="blackAlpha.400" name="zip" onChange={handleInputChange} />
-                        </GridItem>
-                    </Grid>
-                </Box>
-            </SimpleGrid>
+            <Popover isOpen={searchParams.get('focus') === "address"} placement="right" arrowPadding="4">
+                <PopoverAnchor>
+                <SimpleGrid columns="2" mt="5" >
+                    <Text fontSize="md">Home Address</Text>
+                    <Box>
+                        <Input autoFocus={searchParams.get('focus') === "address"} defaultValue={profile.address?.address} borderColor="blackAlpha.400" name="address" onChange={handleInputChange} />
+                        <Grid mt="2" gap="2" templateColumns="repeat(7, 1fr)">
+                            <GridItem colSpan="3">
+                                <Input defaultValue={profile.address?.city} borderColor="blackAlpha.400" name="city" onChange={handleInputChange} />
+                            </GridItem>
+                            <GridItem colSpan="2">
+                                <Select defaultValue={profile.address?.state} borderColor="blackAlpha.400" name="state" onChange={handleInputChange}>
+                                    <option></option>
+                                    <option value="IN">IN</option>
+                                </Select>
+                            </GridItem>
+                            <GridItem colSpan="2">
+                                <Input defaultValue={profile.address?.zip} borderColor="blackAlpha.400" name="zip" onChange={handleInputChange} />
+                            </GridItem>
+                        </Grid>
+                    </Box>
+                </SimpleGrid>
+                </PopoverAnchor>
+
+                <PopoverContent>
+                    <PopoverArrow />
+                    <PopoverBody>
+                        Please add your home address here.
+                    </PopoverBody>
+                </PopoverContent>
+            </Popover>
 
             <SimpleGrid columns="2" mt="5" alignItems="center">
                 <Box/>

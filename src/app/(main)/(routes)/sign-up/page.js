@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
+import { PatternFormat } from "react-number-format";
 
 
 export default function Page() {
@@ -127,7 +128,7 @@ export default function Page() {
             </Stack>
             
             <Text fontSize="md" mt="3">Phone Number</Text>
-            <Input type="text" borderColor="blackAlpha.200" onChange={e => handleInputChange("phoneNumber", e.target.value)} />
+            <Input as={PatternFormat} format="(###) ###-####" type="text" borderColor="blackAlpha.200" onChange={e => handleInputChange("phoneNumber", e.target.value)} />
 
             <Text fontSize="md" mt="3">Email</Text>
             <Input type="text" borderColor="blackAlpha.200" onChange={e => handleInputChange("email", e.target.value)} />
