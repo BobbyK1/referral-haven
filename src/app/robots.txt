@@ -1,0 +1,37 @@
+User-Agent: *
+
+Allow: /
+Allow: /sign-up
+Allow: /forgot-password
+
+Disallow: /dashboard
+Disallow: /dashboard/add-referral
+Disallow: /dashboard/referrals
+Disallow: /dashboard/referrals/[id]
+Disallow: /dashboard/account
+Disallow: /dashboard/account/[id]
+
+Disallow: /admin
+Disallow: /admin/agents
+Disallow: /admin/home
+Disallow: /admin/notifications
+Disallow: /admin/referrals
+
+Disallow: /api
+Disallow: /api/auth
+Disallow: /api/auth/createReferralAgent
+Disallow: /api/auth/login
+Disallow: /api/database
+Disallow: /api/docuseal
+Disallow: /api/docuseal/getTemplates
+Disallow: /api/docuseal/sendRequestPacket
+Disallow: /api/docuseal/webhook
+Disallow: /api/email
+Disallow: /api/email/sendForgotPasswordLink
+Disallow: /api/email/sendNewLeadNotification
+Disallow: /api/stripe
+Disallow: /api/stripe/checkSubscriptionStatus
+Disallow: /api/stripe/webhook
+Disallow: /api/webhooks
+
+Sitemap: https://app.referralhaven.com/sitemap.xml

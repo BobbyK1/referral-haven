@@ -9,7 +9,6 @@ export async function POST(request) {
         })
     }
 
-    console.log(data.record)
 
     const options = {
         method: 'POST',
