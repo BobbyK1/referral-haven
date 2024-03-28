@@ -85,7 +85,6 @@ export async function AddPropertyToReferralLead(prevState, formData) {
         .eq('id', id)
         .single();
 
-    console.log
 
     if (error) {
         console.error(error);
