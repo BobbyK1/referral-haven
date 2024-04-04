@@ -69,7 +69,7 @@ export async function POST(request) {
         .catch(err => console.error(err));
 
     const customer = await stripe.customers.create({
-        name: `${userInfo.first_name} ${userInfo.last_name}`,
+        name: `${userInfo.firstName} ${userInfo.lastName}`,
         email: userInfo.email,
         phone: userInfo.phone_number
     })
@@ -92,7 +92,7 @@ export async function POST(request) {
             'api-key': process.env.BREVO_API_KEY
         },
         body: JSON.stringify({
-            params: { firstName: userInfo.first_name },
+            params: { firstName: userInfo.firstName },
             templateId: 3,
             to: [{ email: userInfo.email }]
         })

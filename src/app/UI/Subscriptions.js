@@ -68,7 +68,7 @@ export default function Subscriptions() {
         <Container maxW="container.xl">
             <Text fontSize="xl" fontWeight="semibold">Thanks for registering!</Text>
             <Text fontSize="lg" mb="10">Please select a plan to continue.</Text>
-            <SimpleGrid columns={3} gap="2">
+            <SimpleGrid columns={[ 1, 2, 2, 3]} gap="2">
                 <Box>
                     <Box w="full" bgColor="blue.500" borderRadius="2" color="white" p="1">
                         <Text textAlign="center" fontWeight="semibold">Most Popular</Text>
@@ -81,7 +81,7 @@ export default function Subscriptions() {
 
                             <Text fontSize="md" color="blackAlpha.700">$10/mo</Text>                        
 
-                            <Button isLoading={loading} onClick={() => handleCheckout("price_1NqKVfIeNNlnMJG9CFab7vXi")} size="sm" variant="ghost" rightIcon={<RightArrow size="xs" />}>Select</Button>
+                            <Button isLoading={loading} onClick={() => handleCheckout("price_1NqVoWIeNNlnMJG9yVu2pXhY")} size="sm" variant="ghost" rightIcon={<RightArrow size="xs" />}>Select</Button>
                         </Stack>
                     </Box>
                 </Box>
@@ -100,7 +100,7 @@ export default function Subscriptions() {
                             
                             <Text fontSize="md" color="blackAlpha.700">$15/mo</Text> 
 
-                            <Button isLoading={loading} onClick={() => handleCheckout("price_1NqKVIIeNNlnMJG94CmCSwfr")} size="sm" variant="ghost" rightIcon={<RightArrow size="xs" />}>Select</Button>
+                            <Button isLoading={loading} onClick={() => handleCheckout("price_1NqVobIeNNlnMJG9xu2roELI")} size="sm" variant="ghost" rightIcon={<RightArrow size="xs" />}>Select</Button>
                         </Stack>
                     </Box>
                 </Box>
@@ -118,7 +118,7 @@ export default function Subscriptions() {
                             
                             <Text fontSize="md" color="blackAlpha.700">$20/mo</Text>                            
 
-                            <Button isLoading={loading} onClick={() => handleCheckout("price_1NqKUSIeNNlnMJG90lmjy5v0")} size="sm" variant="ghost" rightIcon={<RightArrow size="xs" />}>Select</Button>
+                            <Button isLoading={loading} onClick={() => handleCheckout("price_1NqVogIeNNlnMJG9t5yj0pKd")} size="sm" variant="ghost" rightIcon={<RightArrow size="xs" />}>Select</Button>
                         </Stack>
                     </Box>
                 </Box>
