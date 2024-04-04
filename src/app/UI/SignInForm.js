@@ -5,6 +5,7 @@ import { createBrowserClient } from "@supabase/ssr";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import ForgotPasswordModal from "./ForgotPasswordModal";
 
 
 export default function SignInForm() {
@@ -66,9 +67,7 @@ export default function SignInForm() {
                     <Input type="password" borderColor="blackAlpha.200" onChange={e => handleInputChange("password", e.target.value)} />
 
                     <Box w="fit-content" ml="auto">
-                        <Link href="/">
-                            <Text _hover={{ textDecoration: "underline" }} color="blue.500" fontSize="md" mt="3">Forgot password</Text>
-                        </Link>
+                        <ForgotPasswordModal />
                     </Box>
 
                     <Button w="full" mt="5" onClick={handleSubmit} size="sm" variant="outline" isLoading={loading} isDisabled={loading || formData.email.length === 0 || formData.password.length === 0} colorScheme="blue">Log In</Button>

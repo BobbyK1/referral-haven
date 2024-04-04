@@ -1,6 +1,9 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
+import Stripe from "stripe";
+
+const stripe = new Stripe(process.env.NEXT_PUBLIC_STRIPE_SECRET_KEY);
 
 export async function POST(request) {
     const userInfo = await request.json();
@@ -32,28 +35,22 @@ export async function POST(request) {
 
     if (error) throw new Error(error);
 
-    async function SetUserInfo() {
-        const { agent, error } = await supabase.from('agents').upsert([
-            {   
-                id: user.id,
-                email: user.email,
-                first_name: userInfo.firstName,
-                last_name: userInfo.lastName,
-                phone_number: userInfo.phoneNumber,
-                license: userInfo.licenses,
-                role: [
-                    "referral_agent"
-                ]
-            }
-        ])
-        .select()
-    
-        if (error) throw new Error(error.message);
+    const { data: agent, error: userError } = await supabase.from('agents').insert([
+        {   
+            id: user.id,
+            email: user.email,
+            first_name: userInfo.firstName,
+            last_name: userInfo.lastName,
+            phone_number: userInfo.phoneNumber,
+            license: userInfo.licenses,
+            role: [
+                "referral_agent"
+            ]
+        }
+    ])
+    .select()
 
-        return;
-    }
-
-    await SetUserInfo();
+    if (userError) throw new Error(userError.message);
 
     const options = {
         method: 'POST',
@@ -67,6 +64,41 @@ export async function POST(request) {
       };
       
     await fetch('https://api.brevo.com/v3/contacts', options)
+        .then(response => response.json())
+        .then(response => console.log(response))
+        .catch(err => console.error(err));
+
+    const customer = await stripe.customers.create({
+        name: `${userInfo.first_name} ${userInfo.last_name}`,
+        email: userInfo.email,
+        phone: userInfo.phone_number
+    })
+
+    const { agents, error: idError } = await supabase
+        .from('agents')
+        .update({
+            stripe_customer_id: customer.id
+        })
+        .eq('id', user.id)
+        .select();
+
+    if (idError) throw new Error(idError.message);
+
+    const confirmOptions = {
+        method: 'POST',
+        headers: {
+            accept: 'application/json',
+            'content-type': 'application/json',
+            'api-key': process.env.BREVO_API_KEY
+        },
+        body: JSON.stringify({
+            params: { firstName: userInfo.first_name },
+            templateId: 3,
+            to: [{ email: userInfo.email }]
+        })
+    };
+
+    await fetch('https://api.brevo.com/v3/smtp/email', confirmOptions)
         .then(response => response.json())
         .then(response => console.log(response))
         .catch(err => console.error(err));

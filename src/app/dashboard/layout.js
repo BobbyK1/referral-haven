@@ -1,4 +1,4 @@
-import { Container, Flex, IconButton, Menu, MenuButton, MenuItem, MenuList, Stack, Text } from "@chakra-ui/react"
+import { Container, Flex, IconButton, Menu, MenuButton, MenuItem, MenuList, Stack, Tag, Text } from "@chakra-ui/react"
 import Image from "next/image"
 import Link from "next/link"
 import { Question, Settings } from "../UI/Icons"
@@ -26,7 +26,10 @@ export default async function Layout({ children }) {
                 <Container maxW="container.xl">
                     <Flex justifyContent="space-between" alignItems="center">
                         <Link href={user ? "/dashboard" : "/"}>
-                            <Image priority src="/referral-haven-logo.png" height="50" width="200" alt="Referral Haven Logo" />
+                            <Stack direction="row" alignItems="center" spacing="2">
+                                <Image priority src="/referral-haven-logo.png" height="50" width="200" alt="Referral Haven Logo" />
+                                <Tag colorScheme="gray" size="sm" h="fit-content">BETA</Tag>
+                            </Stack>
                         </Link>
 
                         <Stack direction="row" spacing="3" alignItems="center">
