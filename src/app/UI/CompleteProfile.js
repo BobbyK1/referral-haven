@@ -69,6 +69,17 @@ export default async function CompleteProfile() {
                     </AlertDescription>
                 </Alert>
             }
+
+            {!profile.transferred_license &&
+                <Alert status="warning" size="sm" mb="5">
+                    <AlertIcon /> 
+
+                    <AlertTitle fontWeight="semibold">
+                        We are verifying your license transfer. If you have not done so, please check your email for a guide on how to.
+                    </AlertTitle>
+                </Alert>
+            }
+            
         </>
         // <Box w="full" mt="5" bg="blackAlpha.50" p="5" mb="5">
         //     {/* <Text fontSize="sm" fontWeight="semibold" color="blackAlpha.800">Complete Your Profile</Text> */}

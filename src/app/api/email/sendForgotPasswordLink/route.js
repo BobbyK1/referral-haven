@@ -1,6 +1,8 @@
 import routeHandlerAdminSupabase from "@/app/util/routeHandlerAdminSupabase";
 
-export async function POST() {
+export async function POST(request) {
+    const info = await request.json();
+
     const supabase = routeHandlerAdminSupabase();
 
     const { data, error } = await supabase
@@ -8,7 +10,10 @@ export async function POST() {
         .admin
         .generateLink({
             type: "recovery",
-            email: "bobby@havenrealtyhomes.com"
+            email: info.email,
+            options: {
+                redirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/auth/resetPasswordConfirmation`
+            }
         })
 
     if (error) return new Response(`${error.message}`, {
@@ -25,7 +30,7 @@ export async function POST() {
         body: JSON.stringify({
           params: {passwordResetLink: data.properties.action_link},
           templateId: 11,
-          to: [{email: 'bobby@havenrealtyhomes.com'}]
+          to: [{email: info.email}]
         })
       };
       
