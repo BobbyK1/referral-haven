@@ -39,17 +39,17 @@ export default async function Layout({ children }) {
                                 </Link>
                             }
 
-                            <Link href="/dashboard">
+                            {/* <Link href="/dashboard">
                                 <Text _hover={{ color: "blackAlpha.800" }}  transition="0.1s ease" fontSize="sm" fontWeight="semibold" color="blackAlpha.700">Home</Text>
-                            </Link>
+                            </Link> */}
 
                             <Link href="/dashboard/referrals">
                                 <Text _hover={{ color: "blackAlpha.800" }}  transition="0.1s ease" fontSize="sm" fontWeight="semibold" color="blackAlpha.700">Referrals</Text>
                             </Link>
 
-                            <Link href="/dashboard">
+                            {/* <Link href="/dashboard">
                                 <IconButton mr="-4" ml="-1" variant="ghost" rounded="full" icon={<Question fontSize="xl" />} />
-                            </Link>
+                            </Link> */}
 
                             <Menu>
                                 <MenuButton rounded="full" variant="ghost" as={IconButton} icon={<Settings fontSize="xl" />} />

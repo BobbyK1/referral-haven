@@ -45,7 +45,7 @@ export default async function CompleteProfile() {
     return (
         <>
             {!profile.address &&
-                <Alert status="warning" size="sm" mb="5">
+                <Alert status="warning" size="sm" mb="5" borderRadius="5">
                     <AlertIcon /> 
 
                     <AlertTitle fontWeight="semibold">
@@ -59,7 +59,7 @@ export default async function CompleteProfile() {
             }
 
             {!profile.signed_independent_contractor_agreement &&
-                <Alert status="warning" size="sm" mb="10">
+                <Alert status="warning" size="sm" mb="5" borderRadius="5">
                     <AlertIcon />
 
                     <AlertTitle fontWeight="semibold">Please sign our Independent Contractor Agreement</AlertTitle>
@@ -71,7 +71,7 @@ export default async function CompleteProfile() {
             }
 
             {!profile.transferred_license &&
-                <Alert status="warning" size="sm" mb="5">
+                <Alert status="warning" size="sm" mb="10" borderRadius="5">
                     <AlertIcon /> 
 
                     <AlertTitle fontWeight="semibold">
