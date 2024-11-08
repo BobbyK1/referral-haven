@@ -45,37 +45,37 @@ export default async function CompleteProfile() {
     return (
         <>
             {!profile.address &&
-                <Alert status="warning" size="sm" mb="5" borderRadius="5">
+                <Alert flexDirection={["column", "", "", "row"]} textAlign={["center", "", "", "left"]} status="warning" size="sm" mb="5" borderRadius="5">
                     <AlertIcon /> 
 
                     <AlertTitle fontWeight="semibold">
                         Please add a personal address
                     </AlertTitle>
                 
-                    <AlertDescription ml="auto">
+                    <AlertDescription ml={["none", "", "", "auto"]} mt={[5, 5, 5, 0]}>
                         <Button as={Link} href="/dashboard/account/profile?focus=address" size="sm" variant="ghost">Add Address</Button>
                     </AlertDescription>
                 </Alert>
             }
 
             {!profile.signed_independent_contractor_agreement &&
-                <Alert status="warning" size="sm" mb="5" borderRadius="5">
+                <Alert flexDirection={["column", "", "", "row"]} textAlign={["center", "", "", "left"]} status="warning" size="sm" mb="5" borderRadius="5">
                     <AlertIcon />
 
                     <AlertTitle fontWeight="semibold">Please sign our Independent Contractor Agreement</AlertTitle>
 
-                    <AlertDescription ml="auto">
+                    <AlertDescription ml={["none", "", "", "auto"]} mt={[5, 5, 5, 0]}>
                         {submission ? <Text fontSize="sm">Sent to {profile.email}</Text> : <RequestSignature firstName={profile.first_name} lastName={profile.last_name} email={profile.email} address={profile.address} id={user.id} />}
                     </AlertDescription>
                 </Alert>
             }
 
             {!profile.transferred_license &&
-                <Alert status="warning" size="sm" mb="10" borderRadius="5">
+                <Alert flexDirection={["column", "", "", "row"]} textAlign={["center", "", "", "left"]} status="warning" size="sm" mb="10" borderRadius="5">
                     <AlertIcon /> 
 
                     <AlertTitle fontWeight="semibold">
-                        We are verifying your license transfer. If you have not done so, please check your email for a guide on how to.
+                        We are verifying your license transfer. If you have not done so, please check your email for a guide on how to start the process.
                     </AlertTitle>
                 </Alert>
             }

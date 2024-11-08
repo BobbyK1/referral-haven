@@ -47,9 +47,10 @@ export default function Subscriptions() {
             phone_number_collection: {
                 enabled: true,  
             },
+            allow_promotion_codes: true,
             billing_address_collection: "required",
             consent_collection: {
-                terms_of_service: "required"
+                terms_of_service: "required" 
             },
             line_items: [
                 {
@@ -78,6 +79,8 @@ export default function Subscriptions() {
                             <Text fontSize="xl" fontWeight="semibold">1 Year Membership</Text>
                             
                             <Text fontSize="3xl" fontWeight="semibold">$120</Text>
+
+                            {/* <Text borderRadius="5" bgColor="blue.500" color="white" px="10" py="1">$30 off with code 'SAVEFRIDAY30'</Text> */}
 
                             <Text fontSize="md" color="blackAlpha.700">$10/mo</Text>                        
 

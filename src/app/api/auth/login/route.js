@@ -30,9 +30,9 @@ export async function POST(request) {
         password: userInfo.password
     })
 
-    if (error) throw new Error(error);
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true }, { status: 200 });
 
 
 }
