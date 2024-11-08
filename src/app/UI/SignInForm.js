@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, Button, Input, Text } from "@chakra-ui/react";
+import { Alert, AlertIcon, Box, Button, Input, Text } from "@chakra-ui/react";
 import { createBrowserClient } from "@supabase/ssr";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -15,6 +15,7 @@ export default function SignInForm() {
     });
     const [loading, setLoading] = useState(false);
     const [uiLoading, setUiLoading] = useState(true);
+    const [error, setError] = useState('');
     const [user, setUser] = useState(null);
 
     const router = useRouter();
@@ -32,12 +33,16 @@ export default function SignInForm() {
             password: formData.password
         })
 
+        if (error) {
+            setError(error.message);
+            return setLoading(false);
+        } 
+
         await supabase.auth.setSession({
             access_token: data.session.access_token,
             refresh_token: data.session.refresh_token
         })
 
-        if (error) console.log(error);
 
         if (data.session) {
             router.push('/dashboard');
@@ -59,6 +64,8 @@ export default function SignInForm() {
     return (
         <>
             <Box w="full" px="14">
+                {error && <Alert flexDirection={["column", "", "", "row"]} textAlign={["center", "", "", "left"]} mt="5" size="sm" status="error" borderRadius="5"><AlertIcon /> Invalid email or password. Please try again or click "Forgot Password"</Alert>}
+
                 <form>
                     <Text fontSize="md" mt="5">Email</Text>
                     <Input type="email" borderColor="blackAlpha.200" onChange={e => handleInputChange("email", e.target.value)} />
